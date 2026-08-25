@@ -53,12 +53,21 @@
 ## 예정된 ADR
 
 - [ADR-0001: 결정론적 Game Core 공유](0001-shared-deterministic-game-core.md)
-- [ADR-0002: 모듈형 모놀리스와 기술 스택](0002-modular-monolith-stack.md)
+- [ADR-0002: 전체 배포 단위](0002-modular-monolith-stack.md)
 - [ADR-0003: PostgreSQL 기반 내구성 Job](0003-postgresql-durable-jobs.md)
 - [ADR-0004: 재실행 검증과 시즌별 단일 설정 랭킹](0004-verified-season-leaderboard.md)
+- [ADR-0005: Backend 플랫폼](0005-backend-platform.md)
+- [ADR-0006: 영속 저장소](0006-persistence-platform.md)
+- [ADR-0007: API 스타일](0007-api-style.md)
+- [ADR-0008: 사용자 식별과 인간 Run 검증](0008-identity-and-run-verification.md)
+- [ADR-0009: 분석·집계 방식](0009-analytics-strategy.md)
+- [ADR-0010: 운영 Dashboard 플랫폼](0010-dashboard-platform.md)
+- [ADR-0011: AI 분석 통합](0011-ai-analysis-integration.md)
+- [ADR-0012: 관측성](0012-observability-stack.md)
+- [ADR-0013: 배포·호스팅과 CI/CD](0013-deployment-and-ci.md)
 
 다음 후보:
 
 - 이벤트 로그 보존 정책의 구현 세부사항
-- AI 분석가의 모델·데이터 접근 Adapter
-- 첫 공개 배포 플랫폼
+- Game Config canonical serialization과 checksum
+- Legacy Replay 보존·실행 방식

@@ -33,6 +33,8 @@ SimOps는 Unity 게임을 합성 플레이어가 반복 플레이하고, 그 결
 
 기술 선택은 [기술 의사결정 워크숍](docs/09-decision-workshop.md)의 절차에 따라 프로젝트 소유자가 직접 근거를 설명하고 승인한다.
 
+플랫폼과 무관하게 확정 가능한 계약은 [플랫폼 독립 명세](docs/specs/README.md)에, 자동 진행 결과와 재개 위치는 [자동 진행 결과](docs/autonomous-preparation.md)에 정리돼 있다.
+
 ## 핵심 원칙
 
 - Unity 전문성을 중심으로 백엔드, 웹, 데이터, AI, 운영 영역을 연결한다.

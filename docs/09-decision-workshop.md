@@ -113,9 +113,42 @@ Spike에는 질문, 성공 기준, 제한 시간, 결과, 결정 영향이 있�
 
 앞 결정이 바뀌면 의존하는 ADR을 다시 검토한다.
 
+## 의존 관계
+
+```mermaid
+flowchart TD
+    W1[0001 배포 단위] --> W3[0003 Backend]
+    W1 --> W12[0012 배포·CI]
+    W2[0002 Game Core] --> W3
+    W2 --> W7[0007 Run 검증]
+    W3 --> W4[0004 저장소]
+    W3 --> W5[0005 Job]
+    W3 --> W6[0006 API]
+    W4 --> W5
+    W4 --> W8[0008 분석]
+    W6 --> W7
+    W6 --> W9[0009 Dashboard]
+    W8 --> W10[0010 AI]
+    W3 --> W11[0011 관측성]
+    W5 --> W11
+    W9 --> W12
+    W11 --> W12
+```
+
 ## 진행 중인 워크숍
 
 - [Workshop-0001: 전체 배포 단위](workshops/0001-deployment-unit.md) — 사용자 결정 대기
+- [Workshop-0002: Game Core 공유 방식](workshops/0002-game-core-distribution.md) — 사용자 결정 대기
+- [Workshop-0003: Backend 플랫폼](workshops/0003-backend-platform.md) — 사용자 결정 대기
+- [Workshop-0004: 영속 저장소](workshops/0004-persistence-platform.md) — 사용자 결정 대기
+- [Workshop-0005: 비동기 Job 플랫폼](workshops/0005-async-job-platform.md) — 사용자 결정 대기
+- [Workshop-0006: API 스타일](workshops/0006-api-style.md) — 사용자 결정 대기
+- [Workshop-0007: 인증과 인간 Run 검증](workshops/0007-auth-and-run-verification.md) — 사용자 결정 대기
+- [Workshop-0008: 분석·집계 방식](workshops/0008-analytics-platform.md) — 사용자 결정 대기
+- [Workshop-0009: 운영 Dashboard 플랫폼](workshops/0009-dashboard-platform.md) — 사용자 결정 대기
+- [Workshop-0010: AI 분석 통합 방식](workshops/0010-ai-analysis-integration.md) — 사용자 결정 대기
+- [Workshop-0011: 관측성](workshops/0011-observability-stack.md) — 사용자 결정 대기
+- [Workshop-0012: 배포·호스팅과 CI/CD](workshops/0012-deployment-and-ci.md) — 선행 결정 대기
 
 ## 완료 조건
 
