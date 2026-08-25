@@ -52,10 +52,13 @@
 
 ## 예정된 ADR
 
-- Game.Core 공유 및 서버 검증 방식
-- 백엔드 기술 스택
-- 시뮬레이션 병렬 실행 방식
-- 이벤트 로그 보존 전략
-- 랭킹 갱신 전략
-- AI 분석가의 데이터 접근 경계
+- [ADR-0001: 결정론적 Game Core 공유](0001-shared-deterministic-game-core.md)
+- [ADR-0002: 모듈형 모놀리스와 기술 스택](0002-modular-monolith-stack.md)
+- [ADR-0003: PostgreSQL 기반 내구성 Job](0003-postgresql-durable-jobs.md)
+- [ADR-0004: 재실행 검증과 시즌별 단일 설정 랭킹](0004-verified-season-leaderboard.md)
 
+다음 후보:
+
+- 이벤트 로그 보존 정책의 구현 세부사항
+- AI 분석가의 모델·데이터 접근 Adapter
+- 첫 공개 배포 플랫폼
