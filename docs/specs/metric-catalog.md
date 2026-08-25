@@ -25,6 +25,9 @@
 - reward_category
 - reward_id
 - action_type
+- client_platform (인간 Run 플랫폼 비교 시에만 사용)
+
+`client_platform`은 품질·호환성 관측용 차원이다. 플랫폼별 표본 수를 함께 표시하고, 합성 실험의 Variant 효과와 혼합해 해석하지 않는다.
 
 ## 결과 Metric
 

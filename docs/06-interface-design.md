@@ -25,7 +25,11 @@ configChecksum
 scoreRuleVersion?
 baseSeed
 actorKind
+clientPlatform?
+clientBuild?
 ```
+
+`clientPlatform`과 `clientBuild`는 검증·관측 메타데이터이며 Game Core 상태 전이와 Result Hash에 영향을 주지 않는다.
 
 ### GameObservation
 

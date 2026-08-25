@@ -12,7 +12,8 @@
 - 테스트 수준·Golden Fixture·Failure Injection 기준
 - 기술·제품 위험과 재검토 Trigger
 - Transport 독립 논리 인터페이스
-- 전체 시스템 기술 선택지 Workshop 0001~0012
+- 전체 시스템 기술 선택지 Workshop 0001~0013
+- PC·모바일 공통 계약과 플랫폼 검증 기준
 
 ## 의도적으로 진행하지 않은 작업
 

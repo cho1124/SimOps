@@ -144,6 +144,7 @@ flowchart LR
 ### 책임
 
 - 사람 입력과 게임 표현
+- PC·모바일별 입력, 화면, 기기 생명주기 Adapter
 - 활성 시즌·설정 조회
 - Run Ticket 요청
 - Game Core에 행동 전달
@@ -163,6 +164,14 @@ flowchart LR
 - 진행 중 Run과 행동 로그를 로컬에 저장한다.
 - 제출은 idempotency key와 함께 재시도한다.
 - Ticket 만료 후에는 로컬 플레이 결과를 볼 수 있지만 공개 랭킹에는 등록하지 않는다.
+
+### 멀티플랫폼 경계
+
+- 하나의 Unity 프로젝트와 공통 Scene·Prefab·Game Core를 사용한다.
+- PC와 모바일은 플랫폼별 Build Profile과 얇은 Adapter만 분리한다.
+- 키보드·마우스와 터치는 같은 `GameAction`으로 변환한다.
+- Safe Area, 화면비, DPI, pause·resume, 로컬 저장 경로는 Game Core 밖에서 처리한다.
+- 정확한 대상 OS와 배포 채널은 ADR-0014에서 확정한다.
 
 ## 8. Backend API 모듈
 
@@ -434,10 +443,11 @@ Docker Compose:
 - Dashboard
 - 선택적 OpenTelemetry Collector
 
-Unity Editor는 호스트에서 실행하고 로컬 API에 연결한다.
+Unity Editor와 대상 PC·모바일 Development Build는 로컬 API에 연결한다. 실제 모바일 기기에서는 개발 호스트의 접근 가능한 주소와 개발용 인증서를 사용한다.
 
 ### 첫 공개 배포
 
+- Game Client: ADR-0014에서 선택한 PC·모바일 채널
 - Dashboard: Node 런타임 또는 지원 플랫폼
 - API와 Worker: 컨테이너
 - DB: 관리형 PostgreSQL 권장

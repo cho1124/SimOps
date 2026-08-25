@@ -65,6 +65,7 @@
 - [ADR-0011: AI 분석 통합](0011-ai-analysis-integration.md)
 - [ADR-0012: 관측성](0012-observability-stack.md)
 - [ADR-0013: 배포·호스팅과 CI/CD](0013-deployment-and-ci.md)
+- [ADR-0014: PC·모바일 플랫폼 범위](0014-client-platform-coverage.md)
 
 다음 후보:
 

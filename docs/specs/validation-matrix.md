@@ -38,6 +38,12 @@
 | RANK-002 | 높은 동점 기록 | 동점 규칙대로 교체 |
 | AI-001 | Metric에 없는 숫자 출력 | schema·근거 검증 실패 |
 | AI-002 | AI Provider 장애 | Metric과 Experiment 결과 유지 |
+| PLATFORM-001 | 대상별 Development Build | PC 1종·모바일 1종 빌드 성공 |
+| PLATFORM-003 | 공통 Golden Run 교차 실행 | 플랫폼 간 Result Hash 불일치 0 |
+| PLATFORM-010 | 입력별 전체 Action 탐색 | 키보드·마우스·터치 누락 0 |
+| PLATFORM-011 | 해상도·화면비·Safe Area 시각 검증 | 핵심 UI 겹침·잘림 0 |
+| PLATFORM-013 | Action 선택 중 background 전환 | 의도하지 않은 Action 0 |
+| PLATFORM-014 | Action 경계별 종료·복구 | 누락·중복 Action 0 |
 
 ## Golden Fixture
 
@@ -72,6 +78,17 @@ Game Version마다 최소 다음 Fixture를 유지한다.
 | AI 응답 schema 오류 | 보고서 미승인, Job 제한 재시도 |
 | Config publish 중 오류 | Season과 Publication 부분 적용 없음 |
 | 네트워크 중복 Event batch | sequence unique로 중복 제거 |
+| 모바일 Action 도중 background·강제 종료 | 마지막 확정 Action까지만 복구 |
+| 플랫폼 전환 후 만료된 Ticket 제출 | 로컬 결과 유지, 랭킹 거부 |
+
+## 플랫폼 검증 행렬
+
+정확한 대상은 ADR-0014에서 확정하되 각 지원 대상에 다음을 기록한다.
+
+| 대상 | Build | 설치·실행 | 입력 | UI·Safe Area | Pause·Resume | Golden Hash | API·랭킹 |
+|---|---|---|---|---|---|---|---|
+| PC 대상 | 대기 | 대기 | 대기 | 대기 | 해당 시 검증 | 대기 | 대기 |
+| 모바일 대상 | 대기 | 대기 | 대기 | 대기 | 대기 | 대기 | 대기 |
 
 ## 성능 측정 규칙
 

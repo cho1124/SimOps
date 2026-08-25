@@ -8,6 +8,7 @@
 - [Game Core 불변조건](game-core-invariants.md)
 - [상태 전이](state-machines.md)
 - [재실행·검증 프로토콜](replay-verification-protocol.md)
+- [PC·모바일 지원 계약](platform-support.md)
 - [지표 사전](metric-catalog.md)
 - [검증 매트릭스](validation-matrix.md)
 - [위험 목록](risk-register.md)

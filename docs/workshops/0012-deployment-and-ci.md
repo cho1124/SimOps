@@ -6,7 +6,7 @@
 
 ## 결정할 문제
 
-Unity build, API, Worker, Dashboard, Database를 어디에 어떻게 배포하고 검증할 것인가?
+PC·모바일 Unity build, API, Worker, Dashboard, Database를 어디에 어떻게 배포하고 검증할 것인가?
 
 ## 선행 결정
 
@@ -15,6 +15,7 @@ Unity build, API, Worker, Dashboard, Database를 어디에 어떻게 배포하�
 - Workshop-0004 저장소
 - Workshop-0009 Dashboard
 - Workshop-0011 관측성
+- Workshop-0013 클라이언트 플랫폼 범위
 
 ## 필수 요구사항
 
@@ -55,7 +56,8 @@ format/lint
 → unit/property/determinism tests
 → integration tests
 → Game Core DLL + checksum
-→ Unity test/build
+→ Unity 공통 test
+→ 대상 PC·모바일 build와 smoke test
 → API/Worker/Dashboard image
 → migration compatibility check
 → staging smoke test
@@ -69,6 +71,6 @@ format/lint
 - 월 허용 비용
 - 항상 켜져 있어야 하는지
 - 선호 또는 학습할 Cloud
-- PC build와 WebGL 중 공개 우선순위
+- PC·모바일 빌드의 공개 배포 채널과 서명 자동화 범위
 
 [공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 함께 사용한다.

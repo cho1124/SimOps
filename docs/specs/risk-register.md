@@ -24,6 +24,8 @@
 | R-013 | 대량 Simulation 성능 목표 미달 | 중간 | 중간 | Headless, chunk, profile | 18,000 Run 5분 초과 |
 | R-014 | 과도한 Action Log 보존 | 중간 | 중간 | 만료·pin 정책 | DB 성장 목표 초과 |
 | R-015 | 개인 인증 정보 노출 | 낮음 | 치명적 | hash, secret 제외, 로그 redaction | secret scan 실패 |
+| R-016 | PC·모바일 분기로 규칙·UI가 서로 달라짐 | 중간 | 높음 | 공통 Core, 플랫폼 Adapter, 교차 Golden Test | Hash 불일치 또는 플랫폼 전용 규칙 분기 |
+| R-017 | 모바일 지원 범위가 기기·스토어 대응으로 확장 | 높음 | 높음 | MVP 대상 OS·기기·배포 채널 명시 | 미승인 대상 대응 작업 발생 |
 
 ## 운영 규칙
 

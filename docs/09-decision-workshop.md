@@ -109,7 +109,8 @@ Spike에는 질문, 성공 기준, 제한 시간, 결과, 결정 영향이 있�
 9. 운영 Dashboard
 10. AI 분석 통합 방식
 11. 관측성
-12. 배포·호스팅과 CI/CD
+12. PC·모바일 플랫폼 범위
+13. 배포·호스팅과 CI/CD
 
 앞 결정이 바뀌면 의존하는 ADR을 다시 검토한다.
 
@@ -133,6 +134,8 @@ flowchart TD
     W5 --> W11
     W9 --> W12
     W11 --> W12
+    W2 --> W13[0013 클라이언트 플랫폼]
+    W13 --> W12
 ```
 
 ## 진행 중인 워크숍
@@ -148,6 +151,7 @@ flowchart TD
 - [Workshop-0009: 운영 Dashboard 플랫폼](workshops/0009-dashboard-platform.md) — 사용자 결정 대기
 - [Workshop-0010: AI 분석 통합 방식](workshops/0010-ai-analysis-integration.md) — 사용자 결정 대기
 - [Workshop-0011: 관측성](workshops/0011-observability-stack.md) — 사용자 결정 대기
+- [Workshop-0013: PC·모바일 플랫폼 범위](workshops/0013-client-platform-coverage.md) — 사용자 결정 대기
 - [Workshop-0012: 배포·호스팅과 CI/CD](workshops/0012-deployment-and-ci.md) — 선행 결정 대기
 
 ## 완료 조건

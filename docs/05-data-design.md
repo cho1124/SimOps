@@ -222,6 +222,7 @@ Run Ticket은 임의 점수·설정 조작을 줄이지만, 공개된 시드로 
 | experiment_variant_id / simulation_batch_id | 합성 Run 문맥, nullable |
 | game_version_id / config_id | 사용 규칙과 설정 |
 | score_rule_version_id | 점수 규칙, nullable |
+| client_platform / client_build | 인간 클라이언트의 플랫폼군·빌드, 합성 Run은 nullable |
 | base_seed | 기준 시드 |
 | status | created, submitted, verifying, verified, rejected, failed |
 | outcome | victory, defeat, aborted, error |
