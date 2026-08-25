@@ -1,6 +1,6 @@
 # ADR-0003: PostgreSQL 기반 내구성 Job
 
-상태: 승인
+상태: 제안
 
 ## 맥락
 
@@ -47,4 +47,3 @@ MVP는 PostgreSQL `jobs` 테이블을 사용한다.
 - Worker 경합으로 처리량 목표를 지속적으로 달성하지 못함
 - Job backlog가 API latency에 영향을 줌
 - 복잡한 우선순위, 지연 큐, 다중 consumer 요구가 생김
-

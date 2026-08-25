@@ -28,10 +28,11 @@
 | 1 | `01-product-brief.md` | 누구의 어떤 문제를 해결하는가? | 확정 |
 | 2 | `02-system-design.md` | 게임과 LiveOps 시스템은 어떻게 동작하는가? | 확정 |
 | 3 | `03-experiment-design.md` | 무엇을 어떻게 측정하고 비교하는가? | 확정 |
-| 4 | `04-architecture.md` | 각 책임은 어디에서 실행되는가? | 확정 |
-| 5 | `05-data-design.md` | 정보를 어떻게 저장하고 조회하는가? | 확정 |
+| 4 | `04-architecture.md` | 각 책임은 어디에서 실행되는가? | 검토 중 |
+| 5 | `05-data-design.md` | 정보를 어떻게 저장하고 조회하는가? | 검토 중 |
 | 6 | `06-interface-design.md` | 컴포넌트들은 어떤 계약으로 연결되는가? | 사전 초안 |
 | 7 | `07-implementation-plan.md` | 어떤 순서로 구현하는가? | 사전 초안 |
 | 8 | `08-validation-and-portfolio.md` | 무엇으로 완성과 역량을 증명하는가? | 사전 초안 |
+| 9 | `09-decision-workshop.md` | 기술을 어떤 과정으로 선택하는가? | 확정 |
 
 `사전 초안`은 앞 단계의 결정을 돕기 위한 방향이며 아직 구현 기준이 아니다.
