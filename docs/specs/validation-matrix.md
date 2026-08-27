@@ -60,6 +60,10 @@
 | CORE-030·031·034 | 완료 | 후보 3개·미제시 선택 거부·Pool 사전 검증 통과 |
 | CORE-041·043 | 완료 | checksum 및 Config 구조 검증 통과 |
 | Golden Seed 42 | 완료 | Debug·Release Result Hash 일치 |
+| AGENT-001·002 | 완료 | 6종 × 1,000 Run 유효 전이 및 6종 × 100 Seed 행동 로그 재현 통과 |
+| AGENT-003 | 완료 | 공격·방어·효율·탐색 성향 신호 분리 통과 |
+| AGENT-004 | 완료 | 개발 장비 Headless 처리량 목표 100 Run/s 초과 |
+| METRIC-001 | 완료 | 0분모 null·reason 및 Agent Version 혼합 거부 |
 
 실행 명령과 고정값은 [마일스톤 1 구현 기록](../implementation/milestone-01-game-core.md)에 있다.
 

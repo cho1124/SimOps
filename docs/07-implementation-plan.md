@@ -11,8 +11,9 @@
 | 0. 설계 기준선 | 완료 | 확정 문서와 ADR 14건 |
 | 1. 결정론적 게임 코어 | 완료 | [구현 및 검증 기록](implementation/milestone-01-game-core.md) |
 | 2. Unity 플레이와 리플레이 | 구현·빌드 완료 | [구현 및 검증 기록](implementation/milestone-02-unity-client.md), Android 실기기 QA 대기 |
-| 3. 합성 플레이어 | 다음 | 공통 Agent 계약과 5개 규칙 기반 Persona부터 시작 |
-| 4~8 | 대기 | 앞선 수직 단면 완료 후 순차 진행 |
+| 3. 합성 플레이어 | 완료 | [구현 및 6,000 Run 기준선](implementation/milestone-03-synthetic-players.md) |
+| 4. 백엔드와 데이터 | 다음 | API·Worker·PostgreSQL 수직 단면부터 시작 |
+| 5~8 | 대기 | 앞선 수직 단면 완료 후 순차 진행 |
 
 ## 마일스톤 0: 설계 기준선
 

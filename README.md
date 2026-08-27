@@ -10,8 +10,8 @@ SimOps는 Unity 게임을 합성 플레이어가 반복 플레이하고, 그 결
 
 ## 현재 상태
 
-- 단계: 마일스톤 1 완료, 마일스톤 2 구현·빌드 완료, 마일스톤 3 준비
-- 구현: 결정론적 Game Core, Console Runner, Unity Windows·Android Client, 자동 검증 Harness
+- 단계: 마일스톤 1·3 완료, 2 구현·빌드 완료(실기기 QA 대기), 마일스톤 4 준비
+- 구현: 결정론적 Game Core, Unity Windows·Android Client, 합성 플레이어 6종, Headless Simulation, 자동 검증 Harness
 - 확정된 게임 형식: 6번의 짧은 전투와 전투 사이 보상 선택이 있는 턴제 미니 로그라이크
 - 확정된 클라이언트 범위: 하나의 Unity 프로젝트에서 Windows와 Android 지원
 - 비동기 경쟁 요소: 시즌·버전 기반 랭킹
@@ -35,6 +35,12 @@ Unity 6.3 LTS가 설치된 환경에서는 아래 명령으로 DLL 패키징, Un
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/Run-Milestone2.ps1 -Target All
+```
+
+합성 플레이어 6종을 동일 Seed 집합으로 실행하고 JSON 기준선을 만들 수 있다.
+
+```powershell
+dotnet run --project src/SimOps.Simulation.Cli -c Release -- --runs 1000 --json artifacts/simulation/persona-baseline.json
 ```
 
 ## 설계 문서 읽는 순서

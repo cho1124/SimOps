@@ -1,9 +1,12 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/SimOps.Agent.Core/SimOps.Agent.Core.csproj" />
     <Project Path="src/SimOps.Game.Core/SimOps.Game.Core.csproj" />
     <Project Path="src/SimOps.Runner/SimOps.Runner.csproj" />
+    <Project Path="src/SimOps.Simulation.Cli/SimOps.Simulation.Cli.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/SimOps.Agent.Specs/SimOps.Agent.Specs.csproj" />
     <Project Path="tests/SimOps.Game.Core.Specs/SimOps.Game.Core.Specs.csproj" />
   </Folder>
 </Solution>
