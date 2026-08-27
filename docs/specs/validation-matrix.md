@@ -72,6 +72,11 @@
 | PLAYER-001 / TICKET-001~004 | 완료 | 익명 hash·소유권·서명·버전·만료·재사용·멱등성 검증 |
 | RANK-001~004 / SEASON-002 | 완료 | 최고점·동점·동시 완료·합성/거부 제외·종료 시즌 동결·시즌 불변성 |
 | DB-001 | 완료 | 새 임시 DB에서 전체 migration과 catalog를 두 번 초기화하고 익명 인증 검증 통과 |
+| EXP-CALC-001·002 | 완료 | 누락/미지원 정의·중복 Cell·Seed overflow 거부, 공격력만 변경하고 Control 보존 |
+| EXP-CALC-003·004·005 | 완료 | paired bootstrap·시작 cohort MAE·공통 생존자 Turn 비교 검증 |
+| EXP-CALC-006·007·008·009 | 완료 | 전수 Replay·반복 digest·입력 snapshot·취소·0분모·문화권 독립 검증 |
+
+`EXP-CALC-*`는 로컬 실험 계산기 검증이다. `EXP-001`의 Ready 상태 DB 수정 금지나 `BATCH-001`의 비동기 중복 완료 제약을 구현했다고 뜻하지 않는다. 정식 실험 18,000 Run × 2회와 결과는 [마일스톤 6 엔진 기록](../implementation/milestone-06-experiment-engine.md)을 따른다.
 
 실행 명령과 고정값은 [마일스톤 1 구현 기록](../implementation/milestone-01-game-core.md)에 있다.
 

@@ -51,7 +51,39 @@ Stage N 진입 Run 수 / 유효 시작 Run 수
 Stage N 클리어 Run 수 / Stage N 진입 Run 수
 ```
 
-첫 실험 Primary Metric은 Novice의 `stage_pass_rate.v1, stage=3`이다.
+첫 실험에서 조건부 Stage 통과율은 보조 지표다. 기존 Stage 3 Primary는 기준선 통과율 100% 관측으로 폐기했다.
+
+### stage_cumulative_failure_rate.v1
+
+```text
+1 - Stage N 클리어 Run 수 / 전체 유효 시작 Run 수
+```
+
+시작 cohort를 모든 Stage에 동일하게 유지한다. 이전 Stage 사망도 이후 누적 실패에 포함한다. 시작 표본이 없으면 null이다. Stage 진입이 0인 경우 조건부 pass는 null이지만 전체 cohort가 있으면 누적 실패는 1이다.
+
+### novice_curve_target_mae.v1
+
+```text
+mean(Stage별 |Novice 누적 실패율 - 사전 고정 목표 누적 실패율|)
+```
+
+첫 실험 Primary다. 목표 `[0, .02, .05, .10, .20, .30]`과 가중치(각 Stage 동일)를 Experiment에 고정한다. 평가 후 목표를 바꾸지 않는다. 조건부 통과율 평균이나 Run별 절대오차 평균으로 대체하지 않는다.
+
+### adjacent_conditional_failure_jump.v1
+
+```text
+max(0, 각 Stage 조건부 실패율 - 바로 이전 Stage 조건부 실패율)
+```
+
+6개 Stage 중 진입 표본이 없는 Stage가 있으면 null이며 guardrail 통과로 간주하지 않는다.
+
+### paired_survivor_turns_ratio.v1
+
+```text
+양쪽 Variant 모두 클리어한 동일 Seed 교집합에서 Treatment 평균 Turn / Control 평균 Turn
+```
+
+짝 수를 함께 표시하고 교집합이 없으면 null이다. 전체 효과 추정량이 아니라, 조기 사망으로 짧아진 Run이 Turn guardrail을 통과시키는 오류를 막는 보조 기준이다. 전체 Run의 Turn 분포는 별도로 유지한다.
 
 ### total_turns.v1
 

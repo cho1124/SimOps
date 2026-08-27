@@ -7,6 +7,8 @@ using System.Text.Json;
 using SimOps.Agent.Core;
 using SimOps.Game.Core;
 
+if (args.Length > 0 && args[0] == "--experiment") return ExperimentCommand.Execute(args);
+
 var options = CliOptions.Parse(args);
 var config = GameConfig.CreateBaseline();
 var scoreRule = ScoreRule.CreateBaseline();
@@ -21,12 +23,26 @@ for (var definitionIndex = 0; definitionIndex < definitions.Count; definitionInd
 {
     var definition = definitions[definitionIndex];
     var metrics = new PersonaMetrics(definition, config.Rewards.Count);
+    var entries = new int[6];
+    var clears = new int[6];
     for (ulong seed = 0; seed < (ulong)options.RunsPerAgent; seed++)
     {
-        metrics.Add(SyntheticSimulation.Execute(config, scoreRule, definition, seed));
+        var run = SyntheticSimulation.Execute(config, scoreRule, definition, seed);
+        metrics.Add(run);
+        foreach (var stage in run.Result.StageSummaries)
+        {
+            entries[stage.Stage - 1]++;
+            if (stage.Cleared) clears[stage.Stage - 1]++;
+        }
     }
 
     var summary = PersonaSummary.From(metrics);
+    var stages = new List<StageFunnelSummary>();
+    for (var stage = 0; stage < 6; stage++)
+        stages.Add(new StageFunnelSummary(stage + 1, entries[stage], clears[stage], entries[stage] - clears[stage],
+            entries[stage] == 0 ? null : (double?)clears[stage] / entries[stage],
+            (options.RunsPerAgent - clears[stage]) / (double)options.RunsPerAgent));
+    summary = summary with { Stages = stages };
     summaries.Add(summary);
     Console.WriteLine(summary.ToDisplayLine());
 }
@@ -55,6 +71,8 @@ if (options.JsonPath is not null)
     File.WriteAllText(fullPath, JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
     Console.WriteLine($"json={fullPath}");
 }
+
+return 0;
 
 internal sealed record CliOptions(int RunsPerAgent, string? JsonPath)
 {
@@ -100,6 +118,7 @@ internal sealed record PersonaSummary(
     int UniqueBuildCount,
     IReadOnlyDictionary<string, string> UndefinedMetricReasons)
 {
+    public IReadOnlyList<StageFunnelSummary> Stages { get; init; } = Array.Empty<StageFunnelSummary>();
     public static PersonaSummary From(PersonaMetrics metrics)
     {
         return new PersonaSummary(
@@ -148,3 +167,6 @@ internal sealed record SimulationReport(
     long ElapsedMilliseconds,
     double RunsPerSecond,
     IReadOnlyList<PersonaSummary> Personas);
+
+internal sealed record StageFunnelSummary(int Stage, int Entries, int Clears, int Failures,
+    double? ConditionalPassRate, double CumulativeFailureRate);

@@ -14,7 +14,8 @@
 | 3. 합성 플레이어 | 완료 | [구현 및 6,000 Run 기준선](implementation/milestone-03-synthetic-players.md) |
 | 4. 백엔드와 데이터 | 완료 | [수집·검증·lease 복구 기록](implementation/milestone-04-backend-data.md) |
 | 5. 랭킹 | 구현·통합 검증 완료 | [인간 Ticket·랭킹·Unity 연결](implementation/milestone-05-human-ranking.md), 수동 화면/실기기 QA 대기 |
-| 6~8 | 미구현 | [기준선 기반 대표 실험 재정의](implementation/next-experiment-decision.md) 후 실험 수직 단면 진행 |
+| 6. 실험 대시보드 | 일부 구현 | [사전 등록 실험 엔진·18,000 Run 비교](implementation/milestone-06-experiment-engine.md) 완료, DB/Worker·대시보드 연결 대기 |
+| 7~8. AI·LiveOps | 미구현 | 계산된 지표 기반 분석·사람 승인·게시·롤백 |
 
 ## 마일스톤 0: 설계 기준선
 
@@ -76,6 +77,8 @@
 완료 데모: 검증된 인간 Run만 시즌 랭킹에 반영된다.
 
 ## 마일스톤 6: 실험 대시보드
+
+현재: 로컬 CLI의 Variant 생성·전수 Replay·paired 비교·보호 기준 판정까지 구현했다. 첫 실험은 두 후보 모두 탈락했으며 이는 정상적인 실험 결과다. 웹 대시보드와 영속적 실행·승인 상태 관리는 아직 완료하지 않았다.
 
 - 실험과 Variant 관리
 - 대량 실행 요청

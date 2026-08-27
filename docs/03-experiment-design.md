@@ -26,31 +26,32 @@
 
 ### 3.1 관찰 문제
 
-Control 기준에서 Novice 페르소나가 Stage 3에서 과도하게 실패한다고 가정한다.
+2026-08-27 소유자 승인으로 첫 실험을 **난도 곡선 재조정**으로 변경했다.
 
-실제 Control 시뮬레이션에서 이 현상이 나타나지 않으면, 첫 실험 문제는 관찰된 다른 가장 큰 난도 급증으로 변경한다. 실험 결과를 만들기 위해 문제를 인위적으로 단정하지 않는다.
+기준선 Seed 0~999에서 Novice는 Stage 1~5를 모두 통과하고 보스에서만 28회 실패했다. Greedy는 1,000회 모두 클리어했다. 따라서 최초의 `Novice Stage 3 과도 실패` 가정과 통과율 8%p 개선 기준은 폐기한다. 실제 인간의 난도·만족도는 아직 검증하지 않았다.
 
 ### 3.2 가설
 
-중반 적 공격력을 직접 낮추는 것보다 Stage 2 이후 회복 보상의 접근성을 높이는 것이 Novice의 중반 통과율을 개선하면서 다른 페르소나의 난도와 빌드 다양성을 덜 훼손한다.
+Stage 1을 유지한 채 단계별 적 기본 공격력을 점진적으로 강화하면, 일괄 강화보다 Novice의 누적 실패를 목표 곡선에 가깝게 분산하면서 새 보스전 급증과 다른 Persona의 성적 손실을 제한할 수 있는지 검증한다. 성공은 보장하지 않는다.
 
 ### 3.3 Variant
 
 | Variant | 변경 | 역할 |
 |---|---|---|
-| Control | 현재 공개 후보 설정 | 비교 기준 |
-| Treatment A | Stage 3 적 공격력 감소 | 직접 난도 완화 |
-| Treatment B | Stage 2 보상에서 Sustain 출현 가중치 증가 | 간접 생존 지원 |
+| Control | 기존 baseline, 변경 없음 | 비교 기준 |
+| Uniform | Stage 2~6 기본 공격력 150% | 일괄 강화 |
+| Ramped | Stage 1~6 기본 공격력 100/120/140/160/180/200% | 점진 강화 |
 
-정확한 변경 폭은 Control 기준선 결과를 확인한 후 고정한다.
+정수 공격력은 올림한다. HP·보상·Agent 정책은 변경하지 않는다. 두 후보는 총 강화량도 다르므로 곡선 형태만의 독립적 인과효과로 해석하지 않는다. [실행 전 사전 등록](experiments/difficulty-curve-001.md)과 [JSON 정본](experiments/difficulty-curve-001.json)에 변경 폭과 판정 기준을 고정했다.
 
 ### 3.4 실행 구성
 
 - 에이전트: Random, Novice, Aggressive, Defensive, Greedy, Explorer
-- Variant: Control, Treatment A, Treatment B
+- Variant: Control, Uniform, Ramped
 - 반복: Cell당 1,000 Run을 기본값으로 사용
 - 총 기본 실행 수: `6 × 3 × 1,000 = 18,000 Run`
 - 모든 Variant는 Agent별 동일한 기준 시드 집합을 사용한다.
+- 탐색에 사용한 Seed 0~999와 겹치지 않는 평가 Seed 10000~10999를 사용한다.
 
 ## 4. 공정한 난수 정책
 
@@ -91,13 +92,15 @@ baseSeed
 
 ### 6.1 Primary Metric
 
-`Novice Stage 3 Pass Rate`
+`novice_curve_target_mae.v1`
 
 ```text
-Stage 3을 클리어한 Novice Run 수 / Stage 3에 진입한 Novice Run 수
+각 Stage의 누적 실패율 = 1 - 해당 Stage 클리어 Run 수 / 전체 유효 시작 Run 수
+목표 누적 실패율 = [0%, 2%, 5%, 10%, 20%, 30%]
+MAE = 각 Stage의 |실제 누적 실패율 - 목표| 합 / 6
 ```
 
-첫 실험의 직접 목표다.
+낮을수록 사전 목표에 가깝다. 목표 곡선은 첫 탐색용 설계 제약이며 관찰로 추정한 인간 선호가 아니다. 조건부 Stage 통과율은 보조 지표로 유지한다.
 
 ### 6.2 Outcome Metrics
 
@@ -135,17 +138,19 @@ Stage 3을 클리어한 Novice Run 수 / Stage 3에 진입한 Novice Run 수
 - 서버 재실행 검증 시간
 - 재현 결과 불일치 수
 
-## 7. 첫 실험의 잠정 판정 규칙
+## 7. 첫 실험의 사전 고정 판정 규칙
 
 Treatment 후보는 다음을 모두 만족해야 승인 후보가 된다.
 
-- Novice Stage 3 Pass Rate가 Control보다 의미 있게 개선된다.
-- Greedy와 Aggressive의 전체 클리어율이 과도하게 상승하지 않는다.
-- 평균 총 턴이 Control 대비 15% 이상 증가하지 않는다.
-- 정규화된 보상 선택 엔트로피가 Control 대비 10% 이상 감소하지 않는다.
+- Novice MAE가 Control보다 2%p 이상 감소하고 paired bootstrap 차이의 95% CI 상한이 0 미만이다.
+- Novice 클리어율은 60~85%, Stage 1 통과율 ≥99%, Stage 3까지 누적 실패 ≤10%다.
+- Novice의 인접 Stage 조건부 실패율 증가폭은 15%p 이하다. 표본이 없는 Stage는 평가 불가로 탈락한다.
+- Greedy 전체 클리어율 ≥90%, Greedy−Novice 격차 ≥10%p, Aggressive/Defensive/Explorer 클리어율 각각 ≥60%다.
+- 모든 Persona의 양쪽 Variant 모두를 클리어한 동일 Seed 집합에서 평균 Turn 비율 ≤1.15다. 교집합이 없으면 탈락한다.
+- 모든 Persona의 정규화된 보상 선택 엔트로피가 Control의 90% 이상이다. 단일 보상 점유율 ≤50%, Turn 제한 종료 Encounter 비율 ≤1%다.
 - 상태 전이 오류와 재현 불일치가 0건이다.
 
-`의미 있는 개선`의 최초 기준은 절대 8%p 이상으로 시작하되, Control 분포를 본 뒤 실험 실행 전에 확정한다. 결과를 본 뒤 기준을 바꾸지 않는다.
+수치 기준은 실행 전에 고정했다. 후보가 없으면 정상적인 실험 기각 결과로 기록한다. 결과를 본 뒤 기존 기준을 바꾸지 않고 새 실험 ID를 발급한다. 후보 통과도 게시 승인이 아니며 기존 인간 랭킹 시즌을 자동 변경하지 않는다.
 
 ## 8. 분석 방법
 
@@ -154,6 +159,8 @@ Treatment 후보는 다음을 모두 만족해야 승인 후보가 된다.
 - 이진 결과는 통과 여부 차이와 효과 크기를 함께 표시한다.
 - 턴 수와 체력은 중앙값, 분위수, 분포를 함께 본다.
 - 부트스트랩 신뢰구간을 기본 비교 수단으로 사용한다.
+- 첫 실험은 같은 Seed 인덱스를 함께 복원 추출하는 2,000회 percentile bootstrap(고정 Seed 20260827)을 사용한다. 곡선 MAE는 각 재표집의 누적 비율부터 다시 계산한다.
+- CI는 합성 Seed 표본 변동성이다. 다중 비교 보정된 확증 결과나 인간 효과로 해석하지 않는다.
 - p-value 하나만으로 배포 결정을 내리지 않는다.
 
 Cell당 1,000회는 MVP의 기본값이며 고정된 통계적 보장은 아니다. 효과 크기와 분산을 확인한 후 반복 수를 조정할 수 있다.
@@ -221,4 +228,3 @@ Draft
 ```
 
 Running 이후에는 가설, Variant 내용, 판정 규칙을 수정하지 않는다. 변경이 필요하면 새 실험을 만든다.
-
