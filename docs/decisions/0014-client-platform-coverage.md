@@ -21,6 +21,8 @@
 
 MVP 대상은 Windows와 Android다.
 
+후속 결정: [ADR-0015](0015-web-prototype.md)에 따라 WebGL 프로토타입을 추가한다. 아래 네이티브 대상·계약은 유지한다.
+
 - 화면 방향: 가로 고정
 - PC 배포: itch.io Windows ZIP
 - Android 배포: itch.io APK, 필요 시 GitHub Releases mirror

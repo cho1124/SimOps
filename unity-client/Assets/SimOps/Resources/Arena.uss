@@ -74,6 +74,11 @@ Button:disabled { opacity: 0.53; }
 .compact .fighter-name { font-size: 23px; margin-right: 12px; }
 .compact .action-card { min-width: 200px; }
 .compact .reward-card { min-width: 230px; }
+.narrow .page, .narrow .phase, .narrow .action-row, .narrow .reward-row { flex-shrink: 0; }
+.narrow .action-row, .narrow .reward-row { flex-direction: column; flex-wrap: nowrap; }
+.narrow .action-card, .narrow .reward-card { flex-basis: auto; flex-grow: 0; flex-shrink: 0; min-width: 0; width: 100%; }
+.narrow .action-card { min-height: 100px; }
+.narrow .reward-card { min-height: 160px; }
 .page-scroll .unity-scroller--vertical { width: 12px; background-color: #101c23; }
 .page-scroll .unity-scroller__low-button, .page-scroll .unity-scroller__high-button { display: none; }
 .page-scroll .unity-base-slider__tracker { background-color: #101c23; border-width: 0; }

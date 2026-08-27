@@ -12,7 +12,7 @@ namespace SimOps.Unity
     public sealed class SimOpsOnlineClient : MonoBehaviour
     {
         private string ApiUrl = "http://127.0.0.1:5080";
-        private const string CredentialKey = "simops.local5080.playerCredential";
+        private string CredentialKey = "simops.local5080.playerCredential";
         private string _credential;
         private string _pendingBeginKey;
         private string _pendingBeginSeason;
@@ -25,6 +25,12 @@ namespace SimOps.Unity
 
         private void Awake()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Web uses a same-origin /api reverse proxy. Never ship admin/DB keys to the browser.
+            var page = new Uri(Application.absoluteURL);
+            ApiUrl = page.GetLeftPart(UriPartial.Authority);
+            CredentialKey = "simops.web.playerCredential." + new Uri(page, ".").AbsolutePath;
+#endif
             _smokeSession = Array.IndexOf(Environment.GetCommandLineArgs(), "--simops-online-smoke") >= 0;
             var arguments = Environment.GetCommandLineArgs();
             var apiArgument = Array.IndexOf(arguments, "--simops-api-url");

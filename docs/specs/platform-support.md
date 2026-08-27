@@ -6,6 +6,8 @@
 
 SimOps Arena의 MVP는 하나의 Unity 프로젝트에서 Windows와 Android를 지원한다. 화면은 가로 고정이며 Windows ZIP과 Android APK를 itch.io로 배포한다. 세부 근거는 [ADR-0014](../decisions/0014-client-platform-coverage.md)를 따른다.
 
+추가 프로토타입: [ADR-0015](../decisions/0015-web-prototype.md)의 WebGL. 같은 Core와 서버 검증을 사용하며, 현재는 로컬 브라우저 실행 범위다. 공개 호스팅·모바일 브라우저 실기기 품질은 별도 검증 대상으로 남긴다.
+
 ## 공통 계약
 
 - PLATFORM-001: MVP는 최소 한 종류의 PC Player와 한 종류의 모바일 Player를 빌드할 수 있어야 한다.
@@ -40,6 +42,8 @@ Game Core는 UnityEngine 입력, 화면 크기, 프레임 시간, 플랫폼 전�
 - PLATFORM-020: 일시적인 연결 실패는 진행 중인 로컬 Run을 즉시 파기하지 않아야 한다.
 - PLATFORM-021: 랭킹 Run 시작에는 유효한 서버 Ticket이 필요하며, 만료·검증 실패 시 로컬 결과는 표시할 수 있어도 공개 랭킹에는 제출할 수 없다.
 - PLATFORM-022: MVP 익명 계정은 Windows와 Android 사이에 이전하지 않는다. 계정 연동을 이후 구현하면 같은 계정은 두 플랫폼에서 같은 시즌 기록을 조회해야 한다.
+- PLATFORM-023: Web 익명 계정/Replay는 브라우저·출처·배포 경로에 종속된다. 네이티브 저장과 공유하지 않으며 같은 경로의 동시 플레이 탭은 지원하지 않는다.
+- PLATFORM-024: Web 플레이어 요청은 동일 출처 게이트웨이를 통한다. 정적 게임 파일에 운영자·승인자·DB 비밀을 포함하지 않는다.
 
 ## 완료 기준
 

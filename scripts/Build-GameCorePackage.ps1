@@ -5,11 +5,12 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$solutionPath = Join-Path $repositoryRoot 'SimOps.slnx'
+$transportProject = Join-Path $repositoryRoot 'src\SimOps.Game.Transport\SimOps.Game.Transport.csproj'
 $sourceDirectory = Join-Path $repositoryRoot "src\SimOps.Game.Core\bin\$Configuration\netstandard2.1"
 $packageDirectory = Join-Path $repositoryRoot 'unity-client\Packages\com.simops.game-core\Runtime\Plugins'
 
-dotnet build $solutionPath -c $Configuration -m:1 -nodeReuse:false
+# Packaging the shared core must not rebuild/lock running API or Worker binaries.
+dotnet build $transportProject -c $Configuration -m:1 -nodeReuse:false
 if ($LASTEXITCODE -ne 0) {
     throw "Game Core build failed with exit code $LASTEXITCODE."
 }

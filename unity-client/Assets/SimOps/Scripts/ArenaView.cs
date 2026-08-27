@@ -200,7 +200,11 @@ namespace SimOps.Unity
             Root.schedule.Execute(() => { if (version != _feedbackVersion) return; _playerPanel.RemoveFromClassList("hit"); _playerPanel.RemoveFromClassList("heal"); _enemyPanel.RemoveFromClassList("hit"); _feedback.text = ""; }).StartingIn(700);
         }
         public void ClearFeedback() { _feedbackVersion++; _feedback.text = ""; _playerPanel.RemoveFromClassList("hit"); _playerPanel.RemoveFromClassList("heal"); _enemyPanel.RemoveFromClassList("hit"); }
-        public void Resize() => Root.EnableInClassList("compact", Root.resolvedStyle.width < 1100);
+        public void Resize()
+        {
+            Root.EnableInClassList("compact", Root.resolvedStyle.width < 1100);
+            Root.EnableInClassList("narrow", Root.resolvedStyle.width < 760);
+        }
         private static VisualElement Box(VisualElement parent, string classes)
         { var box = new VisualElement(); foreach (var cls in classes.Split(' ')) box.AddToClassList(cls); parent.Add(box); return box; }
         private static Label Label(VisualElement parent, string text, string classes)

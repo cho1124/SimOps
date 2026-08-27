@@ -68,6 +68,7 @@
 | [0012](0012-observability-stack.md) | OpenTelemetry + 교체 가능한 Backend |
 | [0013](0013-deployment-and-ci.md) | 카드 없는 월 0원 PaaS·Managed PostgreSQL·정적 Hosting |
 | [0014](0014-client-platform-coverage.md) | Windows + Android, 가로, itch.io, 통합 랭킹 |
+| [0015](0015-web-prototype.md) | Unity WebGL 추가, 기존 백엔드 유지, 로컬 동일 출처 게이트웨이 |
 
 ## 다음 후보
 

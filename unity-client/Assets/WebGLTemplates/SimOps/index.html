@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SimOps Arena · Web Prototype</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #091217; color: #dbeae7; font: 14px system-ui, sans-serif; }
+    header, footer { display: flex; align-items: center; gap: 16px; padding: 10px 20px; flex-wrap: wrap; }
+    header { border-bottom: 1px solid #23383e; }
+    header strong { color: #7fe0bd; margin-right: auto; }
+    a { color: #9bccdc; }
+    button { color: #eafff7; border: 1px solid #528b78; background: #20503f; border-radius: 6px; padding: 9px 14px; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: default; }
+    #game-shell { position: relative; width: 100%; height: calc(100dvh - 105px); min-height: 360px; }
+    canvas { width: 100%; height: 100%; display: block; background: #091217; outline: none; }
+    canvas:focus-visible { outline: 2px solid #75d7b4; outline-offset: -2px; }
+    #loading { position: absolute; inset: 0; display: grid; place-content: center; gap: 14px; background: #091217; text-align: center; }
+    #loading[hidden] { display: none; }
+    progress { width: 260px; accent-color: #75d7b4; }
+    footer { color: #9aafb2; font-size: 12px; }
+    #rotate { display: none; color: #edc08e; }
+    @media (orientation: portrait) { #rotate { display: inline; } }
+    :fullscreen #game-shell { height: 100dvh; }
+  </style>
+</head>
+<body>
+  <header><strong>SIMOPS / WEB PROTOTYPE</strong><span id="rotate">가로 화면을 권장합니다.</span><button id="fullscreen" disabled>전체 화면</button></header>
+  <main id="game-shell">
+    <canvas id="unity-canvas" tabindex="0" aria-label="SimOps 턴제 아레나 게임. 클릭 또는 1부터 5 키로 조작합니다."></canvas>
+    <section id="loading" aria-live="polite"><strong id="load-text">게임을 불러오는 중…</strong><progress id="progress" value="0" max="1"></progress></section>
+  </main>
+  <footer>이 브라우저에는 최신 한 판만 저장됩니다. 브라우저 데이터 삭제 시 기록이 사라집니다. 랭킹은 결과 화면에서 제출하세요. <a href="licenses/NotoSansKR/OFL.txt" target="_blank" rel="noopener">폰트 라이선스</a></footer>
+  <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+  <script>
+    const canvas = document.getElementById('unity-canvas');
+    const loading = document.getElementById('loading');
+    const loadText = document.getElementById('load-text');
+    const fullscreen = document.getElementById('fullscreen');
+    const config = {
+      dataUrl: 'Build/{{{ DATA_FILENAME }}}',
+      frameworkUrl: 'Build/{{{ FRAMEWORK_FILENAME }}}',
+      codeUrl: 'Build/{{{ CODE_FILENAME }}}',
+      streamingAssetsUrl: 'StreamingAssets',
+      companyName: 'SimOps Lab', productName: 'SimOps Arena', productVersion: '0.1.0',
+      autoSyncPersistentDataPath: true,
+      devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+      showBanner: (message, type) => {
+        if (type === 'error') { loading.hidden = false; loadText.textContent = '게임 실행 오류: ' + message; }
+        console[type === 'error' ? 'error' : 'warn'](message);
+      },
+    };
+    createUnityInstance(canvas, config, progress => document.getElementById('progress').value = progress)
+      .then(instance => {
+        loading.hidden = true; fullscreen.disabled = false; canvas.focus();
+        fullscreen.addEventListener('click', () => instance.SetFullscreen(1));
+      }).catch(error => { loadText.textContent = '불러오기에 실패했습니다. 새로고침하거나 브라우저 설정을 확인해 주세요.'; console.error(error); });
+  </script>
+</body>
+</html>

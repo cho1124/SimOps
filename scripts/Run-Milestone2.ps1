@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('Verify', 'Windows', 'Android', 'All')]
+    [ValidateSet('Verify', 'Windows', 'Android', 'WebGL', 'All')]
     [string]$Target = 'All'
 )
 
@@ -18,7 +18,7 @@ if (-not (Test-Path -LiteralPath $unityEditor)) {
 
 New-Item -ItemType Directory -Force -Path $logDirectory | Out-Null
 & (Join-Path $PSScriptRoot 'Build-GameCorePackage.ps1') -Configuration Release
-dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Client.Specs') -c Release --no-build
+dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Client.Specs') -c Release
 if ($LASTEXITCODE -ne 0) { throw 'Client presentation specs failed.' }
 
 function Invoke-UnityMethod {
@@ -69,6 +69,11 @@ if ($Target -in @('Windows', 'All')) {
 
 if ($Target -in @('Android', 'All')) {
     Invoke-UnityMethod 'SimOps.Unity.Editor.Milestone2Automation.BuildAndroidDevelopment' 'build-android.log'
+}
+
+# Preserve the existing meaning of All (Windows + Android); Web is opt-in.
+if ($Target -eq 'WebGL') {
+    Invoke-UnityMethod 'SimOps.Unity.Editor.Milestone2Automation.BuildWebPrototype' 'build-web.log'
 }
 
 Write-Host "Milestone 2 automation completed: $Target"

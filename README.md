@@ -11,16 +11,18 @@ SimOps는 Unity 게임을 합성 플레이어가 반복 플레이하고, 그 결
 ## 현재 상태
 
 - 단계: 마일스톤 1·3·4 완료, 2·5 구현·통합 검증 완료, 6·7·8 실험·AI 분석·LiveOps 폐루프 구현 및 자동 검증 완료(브라우저·Windows 수동 화면/Android 실기기 QA 대기)
-- 구현: 결정론적 Game Core, Unity Windows·Android Client, 합성 플레이어 6종, API·Worker·PostgreSQL 재실행 검증, 익명 Player·Ticket·시즌 랭킹, 사전 등록 비교 엔진, React 실험 대시보드와 영속 Batch, 로컬 AI 분석·불변 보고서, 승인 Config 게시·동기화·롤백·후속 실험
+- 구현: 결정론적 Game Core, Unity Windows·Android Client와 WebGL 프로토타입, 합성 플레이어 6종, API·Worker·PostgreSQL 재실행 검증, 익명 Player·Ticket·시즌 랭킹, 사전 등록 비교 엔진, React 실험 대시보드와 영속 Batch, 로컬 AI 분석·불변 보고서, 승인 Config 게시·동기화·롤백·후속 실험
 - 확정된 게임 형식: 6번의 짧은 전투와 전투 사이 보상 선택이 있는 턴제 미니 로그라이크
-- 확정된 클라이언트 범위: 하나의 Unity 프로젝트에서 Windows와 Android 지원
+- 확정된 클라이언트 범위: 하나의 Unity 프로젝트에서 Windows·Android 지원, WebGL 브라우저 프로토타입 추가(공개 호스팅 미실시)
 - 비동기 경쟁 요소: 시즌·버전 기반 랭킹
-- 확정된 설계: 제품·시스템·실험·아키텍처·데이터·인터페이스·검증 계획과 ADR 14건
+- 확정된 설계: 제품·시스템·실험·아키텍처·데이터·인터페이스·검증 계획과 ADR 15건
 - 첫 번째 목표: 합성 플레이어 기반 Control/Treatment 실험의 전체 흐름 검증
 
 마일스톤별 구현 범위와 검증 결과는 [구현 기록](docs/implementation/README.md)에 남겨두었다.
 
 Unity 플레이 화면은 한국어 전투·보상·결과 패널로 개선했다. HP·행동력·적 행동 예고, 보상 카드, 결과 제출 상태와 덮어쓰기 확인창을 제공한다. [UI 개선과 렌더 검사](docs/implementation/unity-ui-refresh.md)에 실행 방법과 실기기 QA 범위를 정리했다.
+
+브라우저 플레이는 [WebGL 프로토타입](docs/implementation/web-prototype.md)을 따른다. 게임은 Unity 그대로 실행되고 API·Worker·PostgreSQL은 서버에 남는다. 운영 대시보드(5173)와 게임(5174)은 별도 화면이다.
 
 ## 로컬 실행
 
@@ -38,6 +40,14 @@ Unity 6.3 LTS가 설치된 환경에서는 아래 명령으로 DLL 패키징, Un
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/Run-Milestone2.ps1 -Target All
 ```
+
+Web은 Unity 6000.3.9f1의 **Web Build Support**가 필요하며 `All`에 포함하지 않는다. 랭킹을 사용하려면 별도 터미널에서 `scripts/Start-LocalLab.ps1`을 실행한 뒤 아래 명령을 사용한다. 이미 빌드했다면 `-SkipBuild`를 추가한다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/Run-WebClient.ps1
+```
+
+게임 주소는 [로컬 Web 게임](http://127.0.0.1:5174/)이다. 이 주소는 본인 PC 전용이며 외부에 공유해도 접속되지 않는다. 서버를 종료해도 정적 게임 호스트가 실행 중이면 연습 플레이는 가능하지만, 랭킹 시작·제출·조회는 백엔드가 필요하다.
 
 합성 플레이어 6종을 동일 Seed 집합으로 실행하고 JSON 기준선을 만들 수 있다.
 

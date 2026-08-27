@@ -1,5 +1,7 @@
 # 아키텍처 설계
 
+클라이언트 확장: [ADR-0015](decisions/0015-web-prototype.md)의 Unity WebGL은 기존 API·Worker·PostgreSQL 구조를 그대로 사용한다. Web 게임 호스트는 정적 파일과 플레이어용 `/api` 프록시만 제공한다. [구현 기록](implementation/web-prototype.md) 참고.
+
 상태: 확정
 
 이 문서는 [기술 의사결정 워크숍](09-decision-workshop.md)과 승인된 [ADR](decisions/README.md)을 반영한 구현 기준이다.

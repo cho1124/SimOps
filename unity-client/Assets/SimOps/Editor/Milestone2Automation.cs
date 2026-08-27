@@ -33,6 +33,7 @@ namespace SimOps.Unity.Editor
         [MenuItem("SimOps/Automation/Verify Golden Run")]
         public static void VerifyGoldenRun()
         {
+            VerifyReplaySerialization();
             var config = GameConfig.CreateBaseline();
             var scoreRule = ScoreRule.CreateBaseline();
             var context = new RunContext(
@@ -66,6 +67,23 @@ namespace SimOps.Unity.Editor
             Debug.Log(
                 $"SIMOPS_GOLDEN_PASS hash={result.ResultHash} score={result.FinalScore} " +
                 $"outcome={result.Outcome} actions={simulation.ActionLog.Count}");
+        }
+
+        private static void VerifyReplaySerialization()
+        {
+            var offline = new ReplayData
+            {
+                baseSeed = "42", actions = new System.Collections.Generic.List<ReplayActionData>
+                { new ReplayActionData { sequence = 0, actionType = (int)GameActionType.Strike, rewardId = "" } },
+            };
+            var restored = ReplayStore.Deserialize(JsonUtility.ToJson(offline));
+            if (restored.onlineTicket != null || restored.actions.Count != 1 || restored.actions[0].actionType != (int)GameActionType.Strike)
+                throw new InvalidOperationException("Offline replay JSON round-trip failed.");
+            offline.onlineTicket = new OnlineTicketData { runId = "fixture-run", runTicket = "fixture-ticket", submitKey = "fixture-submit" };
+            restored = ReplayStore.Deserialize(JsonUtility.ToJson(offline));
+            if (restored.onlineTicket?.runTicket != "fixture-ticket" || restored.onlineTicket.submitKey != "fixture-submit")
+                throw new InvalidOperationException("Online replay JSON round-trip failed.");
+            Debug.Log("SIMOPS_REPLAY_JSON_PASS offline=1 online=1");
         }
 
         [MenuItem("SimOps/Automation/Build Windows Development")]
@@ -116,6 +134,25 @@ namespace SimOps.Unity.Editor
             }
         }
 
+        [MenuItem("SimOps/Automation/Build Web Prototype")]
+        public static void BuildWebPrototype()
+        {
+            VerifyReplaySerialization();
+            if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL))
+                throw new InvalidOperationException("Install Web Build Support for this Unity Editor first.");
+            EnsureScene();
+            PlayerSettings.WebGL.template = "PROJECT:SimOps";
+            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
+            PlayerSettings.WebGL.decompressionFallback = false;
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.WebGL, ScriptingImplementation.IL2CPP);
+            var outputPath = GetArtifactPath("web", "");
+            Build(new BuildPlayerOptions
+            {
+                scenes = new[] { ScenePath }, locationPathName = outputPath,
+                target = BuildTarget.WebGL, options = BuildOptions.None,
+            }, "WebGL");
+        }
+
         private static void ApplyPlayerSettings()
         {
             EnsurePanelSettings();
@@ -162,7 +199,8 @@ namespace SimOps.Unity.Editor
                     $"{platform} build failed: {report.summary.result}, errors={report.summary.totalErrors}");
             }
 
-            var notices = Path.Combine(Path.GetDirectoryName(options.locationPathName), "licenses", "NotoSansKR");
+            var outputDirectory = options.target == BuildTarget.WebGL ? options.locationPathName : Path.GetDirectoryName(options.locationPathName);
+            var notices = Path.Combine(outputDirectory, "licenses", "NotoSansKR");
             Directory.CreateDirectory(notices);
             foreach (var file in new[] { "NOTICE.txt", "OFL.txt" })
                 File.Copy(Path.Combine(Application.dataPath, "SimOps", "Resources", "Fonts", file), Path.Combine(notices, file), true);

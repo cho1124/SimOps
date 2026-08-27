@@ -79,7 +79,7 @@ namespace SimOps.Unity
             Action begin = () => { if (ranked) StartCoroutine(_online.Begin(AcceptTicket)); else StartNewRun(DefaultSeed); };
             if (_simulation.ActionLog.Count > 0 || _activeTicket != null)
                 _view.Confirm(_activeTicket != null && !_verified
-                    ? "현재 랭킹 기록은 검증 완료를 확인하지 못했습니다. 새 도전을 시작하면 이 PC의 기존 기록을 덮어씁니다."
+                    ? "현재 랭킹 기록은 검증 완료를 확인하지 못했습니다. 새 도전을 시작하면 이 기기의 기존 기록을 덮어씁니다."
                     : "로컬에는 최신 한 판만 보관됩니다. 현재 진행과 행동 로그를 새 기록으로 바꿉니다.", begin);
             else begin();
             RefreshInterface();

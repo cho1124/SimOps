@@ -40,10 +40,18 @@ namespace SimOps.Unity
                 });
             }
 
+            Directory.CreateDirectory(Application.persistentDataPath);
+            var json = JsonUtility.ToJson(data, true);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // IDBFS persists closed writes asynchronously. Avoid native File.Copy's
+            // timestamp/metadata handling, which can leave rapid updates stale on reload.
+            File.WriteAllText(FilePath, json);
+#else
             var temporaryPath = FilePath + ".tmp";
-            File.WriteAllText(temporaryPath, JsonUtility.ToJson(data, true));
+            File.WriteAllText(temporaryPath, json);
             File.Copy(temporaryPath, FilePath, true);
             File.Delete(temporaryPath);
+#endif
         }
 
         public bool TryLoad(out ReplayData data)
@@ -56,7 +64,7 @@ namespace SimOps.Unity
 
             try
             {
-                data = JsonUtility.FromJson<ReplayData>(File.ReadAllText(FilePath));
+                data = Deserialize(File.ReadAllText(FilePath));
                 return data != null && data.actions != null;
             }
             catch (Exception exception)
@@ -64,6 +72,18 @@ namespace SimOps.Unity
                 Debug.LogWarning($"Replay load failed: {exception.Message}");
                 return false;
             }
+        }
+
+        public static ReplayData Deserialize(string json)
+        {
+            var data = JsonUtility.FromJson<ReplayData>(json);
+            var ticket = data?.onlineTicket;
+            // Unity can materialize a serialized null class as an empty object.
+            // An offline replay has no ticket identity; do not treat its empty config as published data.
+            if (ticket != null && string.IsNullOrEmpty(ticket.runId) &&
+                string.IsNullOrEmpty(ticket.runTicket) && string.IsNullOrEmpty(ticket.submitKey))
+                data.onlineTicket = null;
+            return data;
         }
     }
 
