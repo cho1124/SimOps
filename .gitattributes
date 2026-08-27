@@ -22,3 +22,8 @@
 *.gif binary
 *.pdf binary
 *.dll binary
+
+# Unity serializes empty YAML values with a trailing space by design.
+unity-client/**/*.meta -whitespace
+unity-client/**/*.asset -whitespace
+unity-client/**/*.unity -whitespace

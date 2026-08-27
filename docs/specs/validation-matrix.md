@@ -105,8 +105,8 @@ Game Version마다 최소 다음 Fixture를 유지한다.
 
 | 대상 | Build | 설치·실행 | 입력 | UI·Safe Area | Pause·Resume | Golden Hash | API·랭킹 |
 |---|---|---|---|---|---|---|---|
-| Windows | 대기 | 대기 | 키보드·마우스 | 가로 기준 | focus 상실 검증 | 대기 | 통합 랭킹 |
-| Android 실기기 | 대기 | 대기 | 터치 | 가로·Safe Area | background·resume | 대기 | 통합 랭킹 |
+| Windows | Development Build 성공 | Player smoke 성공 | 코드 완료·수동 QA 대기 | 반응형 가로 UI·수동 QA 대기 | 저장 hook 완료·수동 QA 대기 | Editor Host 일치 | 통합 랭킹 대기 |
+| Android 실기기 | ARM64 IL2CPP APK 성공 | 기기 미연결로 대기 | 터치 UI 코드 완료·실기기 대기 | Safe Area 코드 완료·실기기 대기 | 저장 hook 완료·실기기 대기 | APK 실행 후 측정 대기 | 통합 랭킹 대기 |
 
 ## 성능 측정 규칙
 

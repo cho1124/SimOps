@@ -1,0 +1,10 @@
+{
+  "name": "com.simops.game-core",
+  "version": "0.1.0",
+  "displayName": "SimOps Game Core",
+  "description": "Deterministic shared game rules for Unity, simulation, and server verification.",
+  "unity": "6000.3",
+  "author": {
+    "name": "SimOps"
+  }
+}

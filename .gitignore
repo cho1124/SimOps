@@ -8,6 +8,7 @@ artifacts/
 *.userprefs
 *.suo
 *.pdb
+*.pdb.meta
 
 # Web
 node_modules/
@@ -41,3 +42,4 @@ Thumbs.db
 [Uu]ser[Ss]ettings/
 MemoryCaptures/
 Recordings/
+.utmp/

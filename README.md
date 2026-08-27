@@ -10,15 +10,15 @@ SimOps는 Unity 게임을 합성 플레이어가 반복 플레이하고, 그 결
 
 ## 현재 상태
 
-- 단계: 마일스톤 1 완료, 마일스톤 2 준비
-- 구현: 결정론적 Game Core, Console Runner, 자동 명세 Harness
+- 단계: 마일스톤 1 완료, 마일스톤 2 구현·빌드 완료, 마일스톤 3 준비
+- 구현: 결정론적 Game Core, Console Runner, Unity Windows·Android Client, 자동 검증 Harness
 - 확정된 게임 형식: 6번의 짧은 전투와 전투 사이 보상 선택이 있는 턴제 미니 로그라이크
 - 확정된 클라이언트 범위: 하나의 Unity 프로젝트에서 Windows와 Android 지원
 - 비동기 경쟁 요소: 시즌·버전 기반 랭킹
 - 확정된 설계: 제품·시스템·실험·아키텍처·데이터·인터페이스·검증 계획과 ADR 14건
 - 첫 번째 목표: 합성 플레이어 기반 Control/Treatment 실험의 전체 흐름 검증
 
-마일스톤 1의 구현 범위와 검증 결과는 [결정론적 Game Core 구현 기록](docs/implementation/milestone-01-game-core.md)에 남겨두었다.
+마일스톤별 구현 범위와 검증 결과는 [구현 기록](docs/implementation/README.md)에 남겨두었다.
 
 ## 로컬 실행
 
@@ -29,6 +29,12 @@ dotnet restore SimOps.slnx
 dotnet build SimOps.slnx -c Release --no-restore
 dotnet run --project tests/SimOps.Game.Core.Specs/SimOps.Game.Core.Specs.csproj -c Release --no-build
 dotnet run --project src/SimOps.Runner/SimOps.Runner.csproj -c Release --no-build -- 42
+```
+
+Unity 6.3 LTS가 설치된 환경에서는 아래 명령으로 DLL 패키징, Unity 골든 검증, Windows Build·smoke test, Android APK Build를 재현한다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/Run-Milestone2.ps1 -Target All
 ```
 
 ## 설계 문서 읽는 순서
