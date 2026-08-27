@@ -27,7 +27,7 @@ public sealed partial class PostgresRunStore : IAsyncDisposable
             "SELECT pg_advisory_xact_lock(721042); CREATE SCHEMA IF NOT EXISTS simops; " +
             "CREATE TABLE IF NOT EXISTS simops.schema_migrations (version integer PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now());",
             cancellationToken);
-        foreach (var version in new[] { 1, 2, 3, 4, 5 })
+        foreach (var version in new[] { 1, 2, 3, 4, 5, 6, 7 })
         {
             await using var versionCommand = new NpgsqlCommand("SELECT count(*) FROM simops.schema_migrations WHERE version = @version", connection, transaction);
             versionCommand.Parameters.AddWithValue("version", version);

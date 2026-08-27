@@ -13,6 +13,13 @@ builder.Services.AddSingleton(new PostgresRunStore(connectionString));
 builder.Services.AddSingleton<ReplayVerifier>();
 builder.Services.AddHostedService<VerificationWorker>();
 builder.Services.AddHostedService<SimulationWorker>();
+builder.Services.AddSingleton<IAnalysisProvider>(_ => Environment.GetEnvironmentVariable("SIMOPS_ANALYSIS_PROVIDER") switch {
+    null or "offline" => new OfflineAnalysisProvider(),
+    "ollama" => new OllamaAnalysisProvider(OllamaAnalysisProvider.CreateLocalClient(),
+        Environment.GetEnvironmentVariable("SIMOPS_ANALYSIS_MODEL") ?? "qwen2.5:3b"),
+    _ => new UnavailableAnalysisProvider()
+});
+builder.Services.AddHostedService<AnalysisWorker>();
 await builder.Build().RunAsync();
 
 internal sealed class VerificationWorker : BackgroundService

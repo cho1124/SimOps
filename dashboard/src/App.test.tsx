@@ -112,6 +112,7 @@ const report: Report = {
 };
 function mockApi(result: Report = report) {
   return vi.fn(async (url: string, options?: RequestInit) => {
+    if (url.endsWith("/analyses")) return new Response("[]");
     if (url.endsWith("/decision"))
       return new Response(
         JSON.stringify({

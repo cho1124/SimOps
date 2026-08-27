@@ -157,6 +157,14 @@ app.MapPost("/api/v1/simulation-batches/{id:guid}/cancel", async (Guid id, Postg
 }).RequireRateLimiting("submission");
 app.MapGet("/api/v1/experiments/{id}/results", async (string id, bool? full, PostgresRunStore store, CancellationToken token) =>
     await store.GetExperimentResultJsonAsync(id, full ?? false, token) is { } json ? Results.Content(json, "application/json") : Results.NotFound());
+app.MapGet("/api/v1/experiments/{id}/analyses", async (string id, PostgresRunStore store, CancellationToken token) =>
+    Results.Ok(await store.GetAnalysesAsync(id, token)));
+app.MapPost("/api/v1/experiments/{id}/analyses", async (string id, JsonElement body, PostgresRunStore store, CancellationToken token) =>
+{
+    var request = body.Deserialize<StartAnalysisRequest>(ExperimentJson.Options) ?? throw new JsonException();
+    var jobId = await store.StartAnalysisAsync(id, request, token);
+    return Results.Accepted($"/api/v1/experiments/{Uri.EscapeDataString(id)}/analyses", new { jobId });
+}).RequireRateLimiting("submission");
 app.MapPost("/api/v1/experiments/{id}/decision", async (string id, ExperimentDecisionRequest request, PostgresRunStore store, CancellationToken token) =>
 {
     await store.DecideExperimentAsync(id, request, token);

@@ -363,6 +363,10 @@ AnalysisReport는 각 Claim에 `metricKeys[]`를 포함해야 한다.
 - AI-001: 존재하지 않는 metric key나 Snapshot에 없는 수치 Claim은 보고서 검증에서 거부한다.
 - AI-002: AI Provider 장애·timeout·schema 오류가 Experiment Metric과 사람의 판정 상태를 변경하면 안 된다.
 
+M7 구현: `GET/POST /api/v1/experiments/{id}/analyses`. POST는 `planHash`, `resultDigest`, `idempotencyKey`만 받으며 202와 `jobId`를 반환한다. 조회는 최대 10개 이력과 Snapshot·검증된 보고서를 제공한다. 모두 운영자 인증이 필요하다.
+
+모델 출력은 숫자 대신 `observations[].metricKey`를 참조한다. 서버가 원본 수치를 연결한 최종 보고서는 `{metricKey,value}`이며 저장 시 다시 검증한다. 가설·다음 실험은 `{code,metricKeys[]}` 형태의 제한된 어휘다. 동적 tool call은 실행하지 않고 Snapshot·위반 지표 조회 결과만 미리 주입한다. [M7 계약·실패 경계](implementation/milestone-07-ai-analysis.md)를 참고한다.
+
 ## 9. 오류 Envelope
 
 ```json

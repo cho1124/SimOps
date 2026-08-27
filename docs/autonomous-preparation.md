@@ -35,10 +35,12 @@
 
 ## 재개 위치
 
-1. [구현 계획](07-implementation-plan.md)의 마일스톤 1 시작
-2. Game Core DLL과 결정론 Test Host 생성
-3. 동일 입력의 Result Hash Golden Test 작성
-4. Windows·Android·서버 환경의 교차 검증 준비
+2026-08-27 갱신: M7까지 구현·자동 검증했다. 상세 상태는 [구현 기록](implementation/README.md)을 기준으로 한다.
+
+1. 다음 구현: [M8 LiveOps 폐루프](07-implementation-plan.md#마일스톤-8-liveops-폐루프)의 승인된 Config 게시·동기화·롤백
+2. 현재 실험 `difficulty-curve-001`은 검토 후보 없음, `analyzing`, 사람 판정 미작성이다. 자동 승인·게시는 하지 않는다.
+3. [M7 로컬 AI 분석](implementation/milestone-07-ai-analysis.md)의 근거 제한·실패 격리·반복 검증 결과 확인
+4. 별도 QA: 실제 브라우저 조작, Windows 화면, Android 실기기 검증
 
 ## 구현 시작 조건
 

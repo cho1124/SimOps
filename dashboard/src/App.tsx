@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Api, ApiError } from "./api";
 import type { Detail, ExperimentListItem, Report } from "./contracts";
 import Results from "./Results";
+import Analysis from "./Analysis";
 
 export const labels: Record<string, string> = {
   draft: "초안",
@@ -189,7 +190,7 @@ export default function App() {
       <main>
         <div className="page-title">
           <div>
-            <p className="eyebrow">EXPERIMENTS / MILESTONE 06</p>
+            <p className="eyebrow">EXPERIMENTS / MILESTONE 07</p>
             <h1>
               {api ? (
                 "실험을 비교하고, 판단을 남기다."
@@ -490,6 +491,13 @@ export default function App() {
                       api={api}
                       busy={busy}
                       command={command}
+                    />
+                  )}
+                  {report && (
+                    <Analysis
+                      key={`${report.experimentId}/${report.resultDigest}`}
+                      api={api}
+                      result={report}
                     />
                   )}
                   {!report && detail.status === "failed" && (

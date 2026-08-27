@@ -403,6 +403,8 @@ Unique 제약은 `experiment + variant + agent + metric_key + metric_version`다
 
 AI에는 experiment_metrics, 판정 규칙, 대표 Run 링크만 제공한다.
 
+M7 물리 구현에서는 별도 `analysis_reports` 테이블 대신 `analysis_jobs.report`의 불변 JSONB로 저장한다. 동일 행에 Snapshot/hash, 멱등 키, 시도 횟수, lease·오류 코드를 보관한다. 모델 입력은 계산된 Metric Snapshot과 위반 지표로 더 좁혔으며 원시 Run은 전달하지 않는다. [M7 저장 경계](implementation/milestone-07-ai-analysis.md)를 참고한다.
+
 ## 11. 감사 데이터
 
 `config_publications`는 설정 승인·배포·롤백과 시즌 전환을 기록한다.

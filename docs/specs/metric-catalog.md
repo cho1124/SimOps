@@ -2,6 +2,24 @@
 
 상태: 확정
 
+## M7 분석 Snapshot의 정의 키
+
+M7는 계산기 결과를 다시 계산하지 않고 `cell/{variant}/{agent}/...`, `comparison/{variant}/...` 차원을 가진 읽기 전용 Snapshot으로 투영한다. Schema version은 1이며 계산기·입력 Result Digest·artifact hash로 출처를 고정한다. 숫자는 모델 출력에서 가져오지 않는다.
+
+| Snapshot `definitionKey` | 정의 |
+|---|---|
+| `valid-run-count` | 계산에 포함한 완료 Run 수 |
+| `replay-mismatch-count` | 전수 Replay 결과 해시 불일치 수 |
+| `review-candidate-count` | 모든 사전 기준을 통과한 후보 수, 사람의 승인 건수 아님 |
+| `clear-rate` | 아래 `run_clear_rate.v1` |
+| `curve-target-mae` | 아래 `novice_curve_target_mae.v1`, delta는 Treatment − Control |
+| `conditional-stage-pass-rate` | 아래 `stage_pass_rate.v1` |
+| `cumulative-failure-rate` | 아래 `stage_cumulative_failure_rate.v1` |
+| `paired-bootstrap-ci` | 같은 시드 쌍을 재표집한 MAE delta의 95% percentile CI 경계, 다중 비교 보정 없음 |
+| `guardrail-observation` | 사전 등록 guard의 `observed`, key별 단위·임계값은 실험 결과의 해당 guard 정의를 따름 |
+
+대시보드는 선택한 근거 옆에 정의를 표시하고 전체 Snapshot 표에서 정의 목록으로 연결한다. `null`은 관측 없음이며 AI 관측 Claim으로 선택할 수 없다.
+
 ## 공통 규칙
 
 - 모든 Metric은 `metric_key`와 `metric_version`을 가진다.

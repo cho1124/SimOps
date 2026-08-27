@@ -15,7 +15,8 @@
 | 4. 백엔드와 데이터 | 완료 | [수집·검증·lease 복구 기록](implementation/milestone-04-backend-data.md) |
 | 5. 랭킹 | 구현·통합 검증 완료 | [인간 Ticket·랭킹·Unity 연결](implementation/milestone-05-human-ranking.md), 수동 화면/실기기 QA 대기 |
 | 6. 실험 대시보드 | 구현·자동 검증 완료 | [실험 엔진](implementation/milestone-06-experiment-engine.md), [React·영속 Batch·검토 기록](implementation/milestone-06-dashboard.md), 브라우저 수동 QA 대기 |
-| 7~8. AI·LiveOps | 미구현 | 계산된 지표 기반 분석·사람 승인·게시·롤백 |
+| 7. AI 분석가 | 구현·자동 검증·로컬 모델 검증 완료 | [근거 제한 Adapter·영속 Job·모델 3회 검증](implementation/milestone-07-ai-analysis.md), 브라우저 수동 QA 대기 |
+| 8. LiveOps 폐루프 | 미구현 | 승인된 설정 게시·동기화·롤백 |
 
 ## 마일스톤 0: 설계 기준선
 
@@ -88,6 +89,8 @@
 완료 데모: Control/Treatment 시뮬레이션 결과를 대시보드에서 비교한다.
 
 ## 마일스톤 7: AI 분석가
+
+현재: 고정 Snapshot → 비동기 분석 Job → 로컬 Ollama Adapter → 근거 검증 → React 보고서까지 연결했다. 모델은 지표 참조와 제한된 가설·제안 코드를 선택하고, 실제 수치는 서버가 원본에서 연결한다. 실제 모델 3회 성공·동일 결론을 확인했다. 자유 서술 분석과 동적 도구 계획은 지원하지 않으며 사람의 판정·설정 게시를 변경하지 않는다.
 
 - 계산된 지표를 도구로 제공
 - 변화 요약

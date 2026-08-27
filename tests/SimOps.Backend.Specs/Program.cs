@@ -9,6 +9,7 @@ using SimOps.Game.Core;
 using SimOps.Infrastructure;
 
 var mode = args.Length > 0 ? args[0] : "--http";
+if (mode.StartsWith("--analysis-", StringComparison.Ordinal)) return await AnalysisSpecs.RunAsync(mode);
 if (mode is "--experiment-http" or "--experiment-db") return await ExperimentSpecs.RunAsync(mode == "--experiment-db");
 if (mode is "--ranking" or "--ranking-db") return await RankingSpecs.RunAsync(mode == "--ranking-db");
 var tests = mode == "--lease"

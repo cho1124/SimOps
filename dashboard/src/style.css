@@ -513,3 +513,33 @@ pre {
     margin-top: 12px;
   }
 }
+.analysis-evidence {
+  padding: 0;
+  list-style: none;
+}
+.analysis-evidence li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #dce4d9;
+}
+.analysis-evidence code {
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
+.analysis-evidence strong {
+  white-space: nowrap;
+}
+.analysis-evidence small {
+  display: block;
+  margin-top: 0.25rem;
+}
+.analysis-report h4 {
+  margin-bottom: 0.4rem;
+}
+.analysis select {
+  max-width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+}

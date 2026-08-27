@@ -108,3 +108,43 @@ export interface Report {
   treatmentMaeDifference: Estimate;
   treatmentMaeDifferenceDirection: string;
 }
+export interface AnalysisMetric {
+  key: string;
+  value: number | null;
+  unit: string;
+  definitionKey: string;
+}
+export interface Interpretation {
+  code: string;
+  metricKeys: string[];
+}
+export interface AnalysisJob {
+  id: string;
+  status: string;
+  attempts: number;
+  lastError: string | null;
+  snapshotHash: string;
+  createdAt: string;
+  snapshot: {
+    experimentId: string;
+    planHash: string;
+    resultDigest: string;
+    metrics: AnalysisMetric[];
+  };
+  report: {
+    provider: string;
+    model: string;
+    modelDigest: string;
+    promptVersion: string;
+    validationVersion: string;
+    snapshotHash: string;
+    outputHash: string;
+    conclusionHash: string;
+    output: {
+      assessment: string;
+      observations: { metricKey: string; value: number }[];
+      hypotheses: Interpretation[];
+      nextExperiments: Interpretation[];
+    };
+  } | null;
+}

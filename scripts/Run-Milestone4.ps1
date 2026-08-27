@@ -1,4 +1,4 @@
-param([switch]$IncludeRanking, [switch]$IncludeUnitySmoke, [switch]$IncludeExperiments)
+param([switch]$IncludeRanking, [switch]$IncludeUnitySmoke, [switch]$IncludeExperiments, [switch]$IncludeAnalysis)
 
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
@@ -12,6 +12,7 @@ $previousConnectionString = $env:SIMOPS_CONNECTION_STRING
 $previousApiUrl = $env:SIMOPS_API_URL
 $previousAdminKey = $env:SIMOPS_ADMIN_KEY
 $previousTicketKey = $env:SIMOPS_TICKET_SIGNING_KEY
+$previousAnalysisProvider = $env:SIMOPS_ANALYSIS_PROVIDER
 
 function Assert-CommandSucceeded {
     param([string]$Description)
@@ -52,6 +53,7 @@ try {
     $env:SIMOPS_API_URL = 'http://127.0.0.1:5080'
     $env:SIMOPS_ADMIN_KEY = 'simops-local-dev-key'
     $env:SIMOPS_TICKET_SIGNING_KEY = 'simops-local-ticket-signing-key-not-for-production'
+    if ($IncludeAnalysis) { $env:SIMOPS_ANALYSIS_PROVIDER = 'offline' }
     $apiProcess = Start-BackendHost 'SimOps.Api' '--urls http://127.0.0.1:5080'
     $workerProcess = Start-BackendHost 'SimOps.Worker'
 
@@ -107,6 +109,11 @@ try {
         Assert-CommandSucceeded 'Experiment HTTP and durable worker specs'
     }
 
+    if ($IncludeAnalysis) {
+        Start-Sleep -Milliseconds 1100
+        dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Backend.Specs') -c Release --no-build -- --analysis-http
+        Assert-CommandSucceeded 'Analysis HTTP and worker specs'
+    }
     Stop-Process -Id $workerProcess.Id
     $workerProcess.WaitForExit()
     $workerProcess = $null
@@ -125,6 +132,12 @@ try {
         Assert-CommandSucceeded 'Experiment calculator specs'
     }
 
+    if ($IncludeAnalysis) {
+        foreach ($mode in @('--analysis-pure','--analysis-db')) {
+            dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Backend.Specs') -c Release --no-build -- $mode
+            Assert-CommandSucceeded "Analysis specs $mode"
+        }
+    }
     dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Game.Core.Specs') -c Release --no-build
     Assert-CommandSucceeded 'Game Core regression specs'
     dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Agent.Specs') -c Release --no-build
@@ -144,4 +157,5 @@ finally {
     $env:SIMOPS_API_URL = $previousApiUrl
     $env:SIMOPS_ADMIN_KEY = $previousAdminKey
     $env:SIMOPS_TICKET_SIGNING_KEY = $previousTicketKey
+    $env:SIMOPS_ANALYSIS_PROVIDER = $previousAnalysisProvider
 }

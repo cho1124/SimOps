@@ -10,6 +10,7 @@
 | 4. 백엔드와 데이터 | 완료 | [API·Worker·PostgreSQL 통합 검증](milestone-04-backend-data.md) |
 | 5. 랭킹 | 구현·통합 검증 완료 | [익명 Player·Ticket·인간 랭킹](milestone-05-human-ranking.md), 수동 화면/실기기 QA 대기 |
 | 6. 실험 대시보드 | 구현·자동 검증 완료, 브라우저 수동 QA 대기 | [사전 등록 엔진](milestone-06-experiment-engine.md), [React·영속 Batch·검토 기록](milestone-06-dashboard.md) |
-| 7~8. AI·LiveOps | 미구현 | 근거 제한 분석·승인·게시·롤백 |
+| 7. AI 분석가 | 구현·자동 검증·로컬 모델 검증 완료 | [근거 제한 분석·실제 모델 반복 검증](milestone-07-ai-analysis.md), 브라우저 수동 QA 대기 |
+| 8. LiveOps 폐루프 | 미구현 | 승인된 설정 게시·동기화·롤백 |
 
 각 기록은 구현 범위, 재현 명령, 고정된 버전과 checksum, 자동 검증 결과, 남은 위험을 함께 남긴다.
