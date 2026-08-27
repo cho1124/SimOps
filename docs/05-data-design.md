@@ -519,3 +519,9 @@ Redis, 별도 분석 DB, 메시지 브로커는 측정된 병목이 생기기 �
 - Run Summary와 원시 이벤트의 샘플 대조
 - 동일 재현 입력의 result hash 일치
 - Metric 계산 코드 버전과 입력 Run 집합 해시 기록
+
+## M8 물리 구현
+
+Migration 008의 `simops.config_publications`는 게시/롤백 종류, 멱등 키와 요청 hash, 이전·새 시즌 FK, Config checksum FK, 승인 실험 FK, 역할·근거·생성 시각을 저장한다. 이전 시즌·새 시즌·멱등 키에는 각각 unique 제약을 둔다. 게시 이력 UPDATE/DELETE와 종료 시즌 변경은 trigger로 거부한다. 시즌 종료·새 시즌 생성·이력 insert가 하나의 트랜잭션이며 마지막 insert 실패도 전부 rollback된다.
+
+별도 mutable `active_config`를 만들지 않고 활성 시즌의 고정 Config를 읽는다. 과거 시즌을 다시 열지 않으며 롤백도 새 시즌을 만든다. 후속 실험 Schema 2의 `controlSnapshot`은 정의 JSON 안에 고정되고 Ready 이후의 기존 불변성 정책을 따른다. [구현·검증 근거](implementation/milestone-08-liveops.md)를 참고한다.

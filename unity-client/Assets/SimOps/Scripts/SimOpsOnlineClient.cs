@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using SimOps.Game.Core;
+using SimOps.Game.Transport;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -10,10 +11,11 @@ namespace SimOps.Unity
 {
     public sealed class SimOpsOnlineClient : MonoBehaviour
     {
-        private const string ApiUrl = "http://127.0.0.1:5080";
+        private string ApiUrl = "http://127.0.0.1:5080";
         private const string CredentialKey = "simops.local5080.playerCredential";
         private string _credential;
         private string _pendingBeginKey;
+        private string _pendingBeginSeason;
         private bool _smokeSession;
         public bool Busy { get; private set; }
         public string LastError { get; private set; }
@@ -24,6 +26,9 @@ namespace SimOps.Unity
         private void Awake()
         {
             _smokeSession = Array.IndexOf(Environment.GetCommandLineArgs(), "--simops-online-smoke") >= 0;
+            var arguments = Environment.GetCommandLineArgs();
+            var apiArgument = Array.IndexOf(arguments, "--simops-api-url");
+            if (_smokeSession && apiArgument >= 0 && apiArgument + 1 < arguments.Length && arguments[apiArgument + 1] == "http://127.0.0.1:5081") ApiUrl = arguments[apiArgument + 1];
             _credential = _smokeSession ? string.Empty : PlayerPrefs.GetString(CredentialKey, string.Empty);
         }
 
@@ -50,13 +55,28 @@ namespace SimOps.Unity
                 OnlineSeasonData season = null;
                 yield return Request("GET", "/api/v1/public/seasons/active", null, json => season = JsonUtility.FromJson<OnlineSeasonData>(json));
                 if (season == null) yield break;
-                if (_pendingBeginKey == null) _pendingBeginKey = Guid.NewGuid().ToString("N");
+                if (_pendingBeginKey == null || _pendingBeginSeason != season.seasonId)
+                {
+                    _pendingBeginKey = Guid.NewGuid().ToString("N");
+                    _pendingBeginSeason = season.seasonId;
+                }
                 OnlineTicketData ticket = null;
                 yield return Request("POST", "/api/v1/player/tickets", new BeginData
                 {
                     seasonId = season.seasonId, clientGameCoreChecksum = CoreChecksum, idempotencyKey = _pendingBeginKey,
                 }, json => ticket = JsonUtility.FromJson<OnlineTicketData>(json));
                 if (ticket == null) yield break;
+                if (DateTimeOffset.TryParse(ticket.expiresAt, out var expiry) && expiry <= DateTimeOffset.UtcNow)
+                {
+                    _pendingBeginKey = null;
+                    Report("Ticket expired while retrying. Start a new ranked run.");
+                    yield break;
+                }
+                PublishedConfig config = null;
+                yield return Request("GET", "/api/v1/public/seasons/" + ticket.context.seasonId + "/config", null,
+                    json => config = JsonUtility.FromJson<PublishedConfig>(json));
+                if (config == null) yield break;
+                ticket.config = config;
                 ticket.submitKey = Guid.NewGuid().ToString("N");
                 _pendingBeginKey = null;
                 Report("Ranked run ready. Ticket expires: " + ticket.expiresAt);
@@ -162,7 +182,7 @@ namespace SimOps.Unity
         private void Report(string text) { StatusChanged?.Invoke(text); }
     }
 
-    [Serializable] public sealed class OnlineTicketData { public string runId; public string runTicket; public string submitKey; public OnlineContextData context; public string expiresAt; }
+    [Serializable] public sealed class OnlineTicketData { public string runId; public string runTicket; public string submitKey; public OnlineContextData context; public string expiresAt; public PublishedConfig config; }
     [Serializable] public sealed class OnlineContextData
     {
         public string seasonId; public string gameVersion; public string gameCoreChecksum; public string configChecksum;

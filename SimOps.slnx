@@ -4,6 +4,7 @@
     <Project Path="src/SimOps.Api/SimOps.Api.csproj" />
     <Project Path="src/SimOps.Application/SimOps.Application.csproj" />
     <Project Path="src/SimOps.Game.Core/SimOps.Game.Core.csproj" />
+    <Project Path="src/SimOps.Game.Transport/SimOps.Game.Transport.csproj" />
     <Project Path="src/SimOps.Experiments/SimOps.Experiments.csproj" />
     <Project Path="src/SimOps.Infrastructure/SimOps.Infrastructure.csproj" />
     <Project Path="src/SimOps.Runner/SimOps.Runner.csproj" />

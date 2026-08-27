@@ -16,7 +16,7 @@
 | 5. 랭킹 | 구현·통합 검증 완료 | [인간 Ticket·랭킹·Unity 연결](implementation/milestone-05-human-ranking.md), 수동 화면/실기기 QA 대기 |
 | 6. 실험 대시보드 | 구현·자동 검증 완료 | [실험 엔진](implementation/milestone-06-experiment-engine.md), [React·영속 Batch·검토 기록](implementation/milestone-06-dashboard.md), 브라우저 수동 QA 대기 |
 | 7. AI 분석가 | 구현·자동 검증·로컬 모델 검증 완료 | [근거 제한 Adapter·영속 Job·모델 3회 검증](implementation/milestone-07-ai-analysis.md), 브라우저 수동 QA 대기 |
-| 8. LiveOps 폐루프 | 미구현 | 승인된 설정 게시·동기화·롤백 |
+| 8. LiveOps 폐루프 | 구현·자동 통합 검증 완료 | [게시·동기화·롤백·후속 실험](implementation/milestone-08-liveops.md), 수동 화면/실기기 QA 대기 |
 
 ## 마일스톤 0: 설계 기준선
 
@@ -100,6 +100,8 @@
 완료 데모: AI가 임의 수치를 생성하지 않고 실험 결과를 설명한다.
 
 ## 마일스톤 8: LiveOps 폐루프
+
+현재: 승인자 키·불변 승인 기록으로 게시를 제한하고, 시즌 전환·감사 이력을 단일 트랜잭션으로 연결했다. Unity/Runner는 Ticket 시즌의 고정 Snapshot을 읽고 Worker가 같은 Config로 검증한다. 과거 설정으로 새 시즌을 만드는 롤백과 게시 설정을 Control로 쓰는 후속 실험을 격리 DB에서 검증했다. 실제 시즌은 baseline 그대로이며 탈락한 후보를 자동 게시하지 않았다.
 
 - 승인된 설정 배포
 - Unity와 Runner 설정 동기화

@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SimOps.Agent.Core;
 using SimOps.Game.Core;
+using SimOps.Game.Transport;
 
 namespace SimOps.Experiments;
 
@@ -17,14 +18,15 @@ public sealed record ExperimentDefinition(int SchemaVersion, string ExperimentId
     string ControlConfigChecksum, string ScoreRuleChecksum, string AgentVersion, IReadOnlyList<string> AgentIds,
     int RunsPerCell, string FirstSeed, int BootstrapReplicates, string BootstrapSeed,
     IReadOnlyList<VariantDefinition> Variants, string PrimaryMetric, IReadOnlyList<double> TargetCumulativeFailureRates,
-    DecisionRules DecisionRules)
+    DecisionRules DecisionRules,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PublishedConfig? ControlSnapshot = null)
 {
     public const string SupportedPrimaryMetric = "novice_curve_target_mae.v1";
 
     public void Validate()
     {
-        var control = GameConfig.CreateBaseline();
-        if (SchemaVersion != 1 || PrimaryMetric != SupportedPrimaryMetric || GameVersion != control.GameVersion ||
+        var control = ControlSnapshot?.ToConfig() ?? GameConfig.CreateBaseline();
+        if ((SchemaVersion == 1 ? ControlSnapshot is not null : SchemaVersion != 2 || ControlSnapshot is null) || PrimaryMetric != SupportedPrimaryMetric || GameVersion != control.GameVersion ||
             ControlConfigChecksum != control.Checksum || ScoreRuleChecksum != ScoreRule.CreateBaseline().Checksum)
             throw new ArgumentException("Unsupported schema, metric, game, config or score-rule context.");
         RequireId(ExperimentId);
@@ -69,7 +71,7 @@ public sealed record ExperimentDefinition(int SchemaVersion, string ExperimentId
 
     public GameConfig CreateConfig(VariantDefinition variant)
     {
-        var baseline = GameConfig.CreateBaseline();
+        var baseline = ControlSnapshot?.ToConfig() ?? GameConfig.CreateBaseline();
         if (variant.Role == "control") return baseline;
         var encounters = baseline.Encounters.Select((encounter, index) => new EncounterDefinition(encounter.Id, encounter.Stage,
             encounter.MaxHealth, checked((encounter.AttackPower * variant.AttackPercentByStage[index] + 99) / 100),
@@ -92,6 +94,7 @@ public static class ExperimentJson
 {
     public static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web)
     {
+        IncludeFields = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true,
         Converters = { new JsonStringEnumConverter() },

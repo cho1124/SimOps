@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SimOps.Game.Core/SimOps.Game.Core.csproj" />
+    <ProjectReference Include="../SimOps.Game.Transport/SimOps.Game.Transport.csproj" />
   </ItemGroup>
 </Project>

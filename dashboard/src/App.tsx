@@ -3,6 +3,7 @@ import { Api, ApiError } from "./api";
 import type { Detail, ExperimentListItem, Report } from "./contracts";
 import Results from "./Results";
 import Analysis from "./Analysis";
+import LiveOps from "./LiveOps";
 
 export const labels: Record<string, string> = {
   draft: "초안",
@@ -137,9 +138,9 @@ export default function App() {
   const path = detail
     ? `/api/v1/experiments/${encodeURIComponent(detail.id)}`
     : "";
-  async function template() {
+  async function template(controlSeasonId?: string) {
     await command(async () => {
-      const definition = await api!.template();
+      const definition = await api!.template(controlSeasonId);
       setEditor(
         JSON.stringify(
           { ...definition, experimentId: `draft-${Date.now()}` },
@@ -190,7 +191,7 @@ export default function App() {
       <main>
         <div className="page-title">
           <div>
-            <p className="eyebrow">EXPERIMENTS / MILESTONE 07</p>
+            <p className="eyebrow">EXPERIMENTS / MILESTONE 08</p>
             <h1>
               {api ? (
                 "실험을 비교하고, 판단을 남기다."
@@ -216,7 +217,7 @@ export default function App() {
               >
                 새로고침
               </button>
-              <button onClick={template} disabled={busy}>
+              <button onClick={() => void template()} disabled={busy}>
                 새 실험 초안
               </button>
             </div>
@@ -313,6 +314,11 @@ export default function App() {
               )}
             </aside>
             <div className="stack">
+              <LiveOps
+                api={api}
+                detail={detail}
+                onFollowup={(id) => void template(id)}
+              />
               {editor !== null && (
                 <section className="panel">
                   <h2>{revision ? "초안 수정" : "새 실험 초안"}</h2>
@@ -486,6 +492,7 @@ export default function App() {
                   )}
                   {report && (
                     <Results
+                      key={`${report.experimentId}/${report.resultDigest}`}
                       report={report}
                       detail={detail}
                       api={api}

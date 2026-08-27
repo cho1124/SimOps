@@ -20,6 +20,7 @@ public sealed partial class PostgresRunStore
         if (definition.RunsPerCell > 1000 || definition.BootstrapReplicates > 2000)
             throw new ExperimentCommandException("EXPERIMENT_LIMIT", "Server limit: 1000 runs/cell and 2000 bootstrap repetitions.", 400);
         var hash = ExperimentRunner.PlanHash(definition);
+        if (definition.ControlSnapshot is not null) await LoadRegisteredConfigAsync(definition.ControlConfigChecksum, token);
         await using var connection = await _dataSource.OpenConnectionAsync(token);
         await using var transaction = await connection.BeginTransactionAsync(token);
         await using (var gate = new NpgsqlCommand("SELECT pg_advisory_xact_lock(hashtextextended(@id, 17))", connection, transaction))

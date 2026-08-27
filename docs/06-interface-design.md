@@ -340,6 +340,8 @@ MVP 의미:
 - 이전 approved Config를 사용하는 새 Season 생성
 - reason과 영향받은 Season 기록
 
+M8 실제 REST 매핑: `GET /api/v1/liveops/publications`, `POST /api/v1/liveops/publish`, `POST /api/v1/liveops/rollback`, `GET /api/v1/public/seasons/{id}/config`. 게시·롤백은 운영자 키와 별도 승인자 키가 필요하고, 현재 시즌의 `expectedSeasonId`와 멱등 키를 함께 받는다. 상세 DTO·오류와 후속 실험 Snapshot 계약은 [M8 API 기록](implementation/milestone-08-liveops.md#실제-api)에 정리했다.
+
 ## 8. AI Tool 계약
 
 허용 Tool:

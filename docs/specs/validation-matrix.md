@@ -129,6 +129,8 @@ Game Version마다 최소 다음 Fixture를 유지한다.
 | Windows | Development Build 성공 | Player·온라인 smoke 성공 | 코드 완료·수동 QA 대기 | 테마·크기 적용, 정상 캡처 미확보·수동 QA 대기 | 저장 hook 완료·수동 QA 대기 | Editor Host 일치 | 실제 API·Worker 검증 후 내 순위 조회 성공 |
 | Android 실기기 | ARM64 IL2CPP APK 성공 | 기기 미연결로 대기 | 터치 UI 코드 완료·실기기 대기 | Safe Area 코드 완료·실기기 대기 | 저장 hook 완료·실기기 대기 | APK 실행 후 측정 대기 | 공통 네트워크 코드·빌드 완료, 실기기 대기 |
 
+M8 추가: 격리 PostgreSQL DB·API:5081에서 실제 게시·비기준선 Ticket·Worker 검증·Windows Player·Runner·롤백·후속 실험을 검증한다. 게시 이력 insert 시 강제 DB 실패로 부분 시즌 전환이 남지 않는 것도 확인한다. 실험 판정 기준은 양성 경로를 위한 테스트 전용이며 운영 데이터의 개선 근거가 아니다. [세부 검증 기록](../implementation/milestone-08-liveops.md#검증-결과)을 참고한다.
+
 ## 성능 측정 규칙
 
 - 장비, OS, runtime, 빌드 모드, 동시성, 데이터 크기를 기록한다.

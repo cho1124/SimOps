@@ -277,7 +277,7 @@ internal static class RankingSpecs
             if (player.HasValue) command.Parameters.AddWithValue("player", player.Value);
             await command.ExecuteNonQueryAsync();
         }
-        catch (PostgresException error) when (error.SqlState == "P0001") { return; }
+        catch (PostgresException error) when (error.SqlState is "P0001" or "23514") { return; }
         finally { await transaction.RollbackAsync(); }
         throw new InvalidOperationException("Expected database guard did not reject mutation.");
     }

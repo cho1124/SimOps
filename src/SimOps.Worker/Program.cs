@@ -65,7 +65,8 @@ internal sealed class VerificationWorker : BackgroundService
             try
             {
                 var submission = await _store.LoadSubmissionAsync(job.RunId, stoppingToken);
-                var output = _verifier.Verify(submission);
+                var config = await _store.LoadRegisteredConfigAsync(submission.ConfigChecksum, stoppingToken);
+                var output = _verifier.Verify(submission, config);
                 await _store.CompleteJobAsync(job, output, stoppingToken);
                 _logger.LogInformation("Run {RunId} completed: verified={Verified} code={Code}", job.RunId, output.Verified, output.RejectionCode);
             }

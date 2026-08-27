@@ -112,7 +112,7 @@ public sealed partial class PostgresRunStore
             throw new SubmissionValidationException("ACTION_SCHEMA_INVALID", "Only action log schema version 1 is supported.");
         var submission = new RunSubmission(request.IdempotencyKey, "", "", claims.GameVersion, claims.ConfigChecksum,
             claims.ScoreRuleVersion, claims.ScoreRuleChecksum, claims.BaseSeed, request.ClientResultHash, request.Actions);
-        SubmissionValidator.Validate(submission, requireAgent: false);
+        SubmissionValidator.Validate(submission, requireAgent: false, registeredConfig: await LoadRegisteredConfigAsync(claims.ConfigChecksum, token));
         await using var connection = await _dataSource.OpenConnectionAsync(token);
         await using var transaction = await connection.BeginTransactionAsync(token);
         bool used;

@@ -10,8 +10,8 @@ SimOps는 Unity 게임을 합성 플레이어가 반복 플레이하고, 그 결
 
 ## 현재 상태
 
-- 단계: 마일스톤 1·3·4 완료, 2·5 구현·통합 검증 완료(수동 화면/실기기 QA 대기), 6·7 실험 대시보드·영속 실험·근거 제한 AI 분석 구현 및 자동 검증 완료(브라우저 수동 QA 대기), 8 미구현
-- 구현: 결정론적 Game Core, Unity Windows·Android Client, 합성 플레이어 6종, API·Worker·PostgreSQL 재실행 검증, 익명 Player·Ticket·시즌 랭킹, 사전 등록 비교 엔진, React 실험 대시보드와 영속 Batch, 로컬 AI 분석 Adapter·불변 보고서
+- 단계: 마일스톤 1·3·4 완료, 2·5 구현·통합 검증 완료, 6·7·8 실험·AI 분석·LiveOps 폐루프 구현 및 자동 검증 완료(브라우저·Windows 수동 화면/Android 실기기 QA 대기)
+- 구현: 결정론적 Game Core, Unity Windows·Android Client, 합성 플레이어 6종, API·Worker·PostgreSQL 재실행 검증, 익명 Player·Ticket·시즌 랭킹, 사전 등록 비교 엔진, React 실험 대시보드와 영속 Batch, 로컬 AI 분석·불변 보고서, 승인 Config 게시·동기화·롤백·후속 실험
 - 확정된 게임 형식: 6번의 짧은 전투와 전투 사이 보상 선택이 있는 턴제 미니 로그라이크
 - 확정된 클라이언트 범위: 하나의 Unity 프로젝트에서 Windows와 Android 지원
 - 비동기 경쟁 요소: 시즌·버전 기반 랭킹
@@ -65,6 +65,8 @@ powershell -ExecutionPolicy Bypass -File scripts/Start-LocalLab.ps1 -SkipBuild
 검증 명령은 등록된 18,000 Run 실험을 DB에 보존한다. 로컬 실험실은 `http://127.0.0.1:5173`에서 개발용 운영자 키 `simops-local-dev-key`로 연결한다. 키는 탭 메모리에만 보관되며 공개 서비스에 사용하면 안 된다. 실행 터미널을 유지하고 Ctrl+C로 API·Worker·대시보드를 종료한다. [M6 대시보드·DB 구현 기록](docs/implementation/milestone-06-dashboard.md)에 API·재시도·보안 범위를 정리했다.
 
 M7 분석까지 포함한 자동 검증은 `powershell -File scripts/Run-Milestone7.ps1`이다. 기본은 **규칙 기반 데모(LLM 아님)**이며, 실제 AI는 설치된 Ollama 모델을 사용하도록 Worker를 설정한다. 로컬 `qwen2.5:3b`로 3회 실제 분석을 검증했다. 모델은 지표와 허용된 가설을 선택하고 수치는 서버가 연결한다. [M7 실행·검증 기록](docs/implementation/milestone-07-ai-analysis.md)에 설정 방법과 한계를 정리했다.
+
+M8까지 전체 검증은 `powershell -File scripts/Run-Milestone8.ps1`이다. 실제 운영 설정은 그대로 두고 임시 DB에서 게시→Unity/Runner 플레이→후속 실험→롤백을 검증한다. 운영자 키와 별도로 개발용 승인자 키 `simops-local-approver-key`가 있어야 후보 승인·게시·롤백이 가능하다. [M8 계약·검증 기록](docs/implementation/milestone-08-liveops.md)에 사용법·Ticket 영향·남은 QA를 정리했다.
 
 ## 설계 문서 읽는 순서
 

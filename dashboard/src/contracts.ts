@@ -1,5 +1,13 @@
 // Explicit transport DTOs. Aligned with ExperimentContracts.cs and ExperimentMetrics.cs.
+export interface PublishedConfig {
+  schemaVersion: number;
+  gameVersion: string;
+  configVersion: string;
+  checksum: string;
+  attackPowers: number[];
+}
 export interface Definition {
+  controlSnapshot?: PublishedConfig;
   experimentId: string;
   hypothesis: string;
   gameVersion: string;

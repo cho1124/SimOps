@@ -16,6 +16,7 @@ if ($LASTEXITCODE -ne 0) {
 
 New-Item -ItemType Directory -Force -Path $packageDirectory | Out-Null
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'SimOps.Game.Core.dll') -Destination $packageDirectory -Force
+Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\SimOps.Game.Transport\bin\$Configuration\netstandard2.1\SimOps.Game.Transport.dll") -Destination $packageDirectory -Force
 $resourceDirectory = Join-Path $repositoryRoot 'unity-client\Packages\com.simops.game-core\Runtime\Resources'
 New-Item -ItemType Directory -Force -Path $resourceDirectory | Out-Null
 $checksum = (Get-FileHash -LiteralPath (Join-Path $sourceDirectory 'SimOps.Game.Core.dll') -Algorithm SHA256).Hash.ToLowerInvariant()

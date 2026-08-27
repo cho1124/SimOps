@@ -128,8 +128,9 @@ namespace SimOps.Unity
             SaveProgress();
         }
 
-        private void StartNewRun(ulong seed)
+        private void StartNewRun(ulong seed, GameConfig config = null)
         {
+            _config = config ?? GameConfig.CreateBaseline();
             _activeTicket = null;
             _context = CreateContext(seed);
             _simulation = new GameSimulation(_config, _scoreRule);
@@ -141,7 +142,13 @@ namespace SimOps.Unity
 
         private bool TryResume()
         {
-            if (!_replayStore.TryLoad(out var replay) ||
+            if (!_replayStore.TryLoad(out var replay)) return false;
+            if (replay.onlineTicket?.config != null)
+            {
+                try { _config = replay.onlineTicket.config.ToConfig(); }
+                catch (ArgumentException) { return false; }
+            }
+            if (
                 !ulong.TryParse(replay.baseSeed, NumberStyles.None, CultureInfo.InvariantCulture, out var seed) ||
                 !string.Equals(replay.gameVersion, _config.GameVersion, StringComparison.Ordinal) ||
                 !string.Equals(replay.configChecksum, _config.Checksum, StringComparison.Ordinal) ||
@@ -429,15 +436,18 @@ namespace SimOps.Unity
 
         private void AcceptTicket(OnlineTicketData ticket)
         {
+            GameConfig received;
+            try { received = ticket.config?.ToConfig(); }
+            catch (ArgumentException) { _onlineLabel.text = "Config verification failed."; return; }
             var context = ticket.context;
-            if (context == null || context.gameVersion != _config.GameVersion || context.configChecksum != _config.Checksum ||
+            if (received == null || context == null || context.gameVersion != received.GameVersion || context.configChecksum != received.Checksum ||
                 context.scoreRuleVersion != _scoreRule.Version || context.scoreRuleChecksum != _scoreRule.Checksum ||
                 context.gameCoreChecksum != _online.CoreChecksum || !ulong.TryParse(context.baseSeed, out var seed))
             {
                 _onlineLabel.text = "Ticket requires an unsupported game or config version.";
                 return;
             }
-            StartNewRun(seed);
+            StartNewRun(seed, received);
             _activeTicket = ticket;
             SaveProgress();
         }

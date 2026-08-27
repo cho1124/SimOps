@@ -6,5 +6,6 @@
   <ItemGroup>
     <ProjectReference Include="../SimOps.Agent.Core/SimOps.Agent.Core.csproj" />
     <ProjectReference Include="../SimOps.Experiments/SimOps.Experiments.csproj" />
+    <ProjectReference Include="../SimOps.Game.Transport/SimOps.Game.Transport.csproj" />
   </ItemGroup>
 </Project>

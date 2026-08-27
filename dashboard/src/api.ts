@@ -23,12 +23,14 @@ export class Api {
     path: string,
     body?: unknown,
     signal?: AbortSignal,
+    approverKey?: string,
   ): Promise<T> {
     const response = await fetch(this.base.replace(/\/$/, "") + path, {
       method: body === undefined ? "GET" : "POST",
       signal,
       headers: {
         "X-SimOps-Admin-Key": this.key,
+        ...(approverKey ? { "X-SimOps-Approver-Key": approverKey } : {}),
         ...(body === undefined ? {} : { "Content-Type": "application/json" }),
       },
       body: body === undefined ? undefined : JSON.stringify(body),
@@ -68,8 +70,13 @@ export class Api {
       signal,
     );
   }
-  template() {
-    return this.request<Definition>("/api/v1/catalog/experiment-template");
+  template(controlSeasonId?: string) {
+    return this.request<Definition>(
+      "/api/v1/catalog/experiment-template" +
+        (controlSeasonId
+          ? `?controlSeasonId=${encodeURIComponent(controlSeasonId)}`
+          : ""),
+    );
   }
 }
 export const percent = (value: number | null | undefined) =>

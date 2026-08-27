@@ -494,3 +494,7 @@ Unity Editor와 대상 PC·모바일 Development Build는 로컬 API에 연결�
 - 메시지 브로커
 
 각 단계는 측정된 병목이나 제품 요구가 있을 때만 진행한다.
+
+## M8 구현 경계
+
+Game Core를 바꾸지 않고 별도 .NET Standard 2.1 `SimOps.Game.Transport`로 시즌 Config Snapshot을 공유한다. Unity와 Runner는 특정 시즌 Snapshot을 검증해 Core에 주입하며 Worker도 같은 등록 Config를 로드한다. 게시·롤백은 API의 짧은 DB 트랜잭션이고 대량 실행·분석은 계속 Worker 책임이다. 승인자 키와 불변 사람 판정이 모두 있어야 게시할 수 있다. [M8 구현 기록](implementation/milestone-08-liveops.md)에 잠금·실패·호환성 경계를 정리했다.

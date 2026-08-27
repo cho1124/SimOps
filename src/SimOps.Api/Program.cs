@@ -26,11 +26,11 @@ var ticketKey = Environment.GetEnvironmentVariable("SIMOPS_TICKET_SIGNING_KEY")
 builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = 1_048_576);
 builder.Services.AddSingleton(new PostgresRunStore(connectionString));
 builder.Services.AddSingleton(new RunTicketSigner(ticketKey));
-builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.ConfigureHttpJsonOptions(options => { options.SerializerOptions.IncludeFields = true; options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 builder.Services.AddOpenApi();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithOrigins("http://127.0.0.1:5173", "http://localhost:5173")
-    .WithMethods("GET", "POST").WithHeaders("Content-Type", "X-SimOps-Admin-Key")));
+    .WithMethods("GET", "POST").WithHeaders("Content-Type", "X-SimOps-Admin-Key", "X-SimOps-Approver-Key")));
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -51,6 +51,10 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+var approverKey = Environment.GetEnvironmentVariable("SIMOPS_APPROVER_KEY")
+    ?? (builder.Environment.IsDevelopment() ? "simops-local-approver-key" : throw new InvalidOperationException("SIMOPS_APPROVER_KEY is required."));
+if (string.IsNullOrWhiteSpace(approverKey) || approverKey == adminKey)
+    throw new InvalidOperationException("SIMOPS_APPROVER_KEY must be nonempty and distinct from SIMOPS_ADMIN_KEY.");
 await app.Services.GetRequiredService<PostgresRunStore>().InitializeAsync();
 app.UseCors();
 
@@ -73,6 +77,13 @@ app.Use(async (context, next) =>
 
     try
     {
+        if (context.Request.Method == "POST" && context.Request.Path.StartsWithSegments("/api/v1/liveops") &&
+            !CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(context.Request.Headers["X-SimOps-Approver-Key"].ToString()), Encoding.UTF8.GetBytes(approverKey)))
+        {
+            context.Response.StatusCode = 403;
+            await context.Response.WriteAsJsonAsync(new ApiError("APPROVER_REQUIRED", "An approver key is required for publication.", false, correlationId));
+            return;
+        }
         await next();
     }
     catch (ExperimentCommandException exception)
@@ -125,13 +136,26 @@ app.MapGet("/api/v1/catalog/baseline", () => Results.Ok(new
     agents = AgentFactory.CreateDefinitions(),
 }));
 app.MapGet("/api/v1/experiments", async (PostgresRunStore store, CancellationToken token) => Results.Ok(await store.ListExperimentsAsync(token)));
+app.MapGet("/api/v1/liveops/publications", async (PostgresRunStore store, CancellationToken token) => Results.Ok(await store.ListPublicationsAsync(token)));
+app.MapPost("/api/v1/liveops/publish", async (JsonElement body, PostgresRunStore store, CancellationToken token) =>
+    Results.Ok(await store.PublishConfigAsync(body.Deserialize<PublishConfigRequest>(ExperimentJson.Options) ?? throw new JsonException(), token))).RequireRateLimiting("submission");
+app.MapPost("/api/v1/liveops/rollback", async (JsonElement body, PostgresRunStore store, CancellationToken token) =>
+    Results.Ok(await store.RollbackConfigAsync(body.Deserialize<RollbackConfigRequest>(ExperimentJson.Options) ?? throw new JsonException(), token))).RequireRateLimiting("submission");
+app.MapGet("/api/v1/public/seasons/{id:guid}/config", async (Guid id, PostgresRunStore store, CancellationToken token) =>
+    await store.GetSeasonConfigAsync(id, token) is { } config ? Results.Json(config, ContractJson.Options) : Results.NotFound());
 app.MapGet("/api/v1/catalog/configs/{checksum}", async (string checksum, PostgresRunStore store, CancellationToken token) =>
     await store.GetRegisteredConfigJsonAsync(checksum, token) is { } json ? Results.Content(json, "application/json") : Results.NotFound());
-app.MapGet("/api/v1/catalog/experiment-template", () =>
+app.MapGet("/api/v1/catalog/experiment-template", async (Guid? controlSeasonId, PostgresRunStore store, CancellationToken token) =>
 {
     using var stream = typeof(Program).Assembly.GetManifestResourceStream("SimOps.ExperimentTemplate.json")!;
     using var reader = new StreamReader(stream);
-    return Results.Content(reader.ReadToEnd(), "application/json");
+    var json = reader.ReadToEnd();
+    if (controlSeasonId is null) return Results.Content(json, "application/json");
+    var snapshot = await store.GetSeasonConfigAsync(controlSeasonId.Value, token);
+    if (snapshot is null) return Results.NotFound();
+    var definition = ExperimentJson.Parse(json) with { SchemaVersion = 2, ControlSnapshot = snapshot,
+        ControlConfigChecksum = snapshot.checksum, Hypothesis = "후속 실험: 게시된 설정을 Control로 고정하고 새로운 가설·변경안·시드·판정 기준을 사전 등록하세요." };
+    return Results.Json(definition, ExperimentJson.Options);
 });
 app.MapPost("/api/v1/experiments", async (JsonElement request, PostgresRunStore store, CancellationToken token) =>
     Results.Ok(await store.SaveExperimentAsync(request.Deserialize<SaveExperimentRequest>(ExperimentJson.Options)
@@ -165,8 +189,11 @@ app.MapPost("/api/v1/experiments/{id}/analyses", async (string id, JsonElement b
     var jobId = await store.StartAnalysisAsync(id, request, token);
     return Results.Accepted($"/api/v1/experiments/{Uri.EscapeDataString(id)}/analyses", new { jobId });
 }).RequireRateLimiting("submission");
-app.MapPost("/api/v1/experiments/{id}/decision", async (string id, ExperimentDecisionRequest request, PostgresRunStore store, CancellationToken token) =>
+app.MapPost("/api/v1/experiments/{id}/decision", async (string id, ExperimentDecisionRequest request, HttpContext context, PostgresRunStore store, CancellationToken token) =>
 {
+    if (request.Conclusion == "approved_candidate" && !CryptographicOperations.FixedTimeEquals(
+        Encoding.UTF8.GetBytes(context.Request.Headers["X-SimOps-Approver-Key"].ToString()), Encoding.UTF8.GetBytes(approverKey)))
+        return Results.Json(new ApiError("APPROVER_REQUIRED", "Candidate approval requires an approver key.", false, context.TraceIdentifier), statusCode: 403);
     await store.DecideExperimentAsync(id, request, token);
     return Results.Ok(await store.GetExperimentAsync(id, token));
 }).RequireRateLimiting("submission");

@@ -1,9 +1,28 @@
 using System;
 using System.Globalization;
 using SimOps.Game.Core;
+using SimOps.Game.Transport;
+using System.Net.Http;
+using System.Text.Json;
 
 var seed = ParseSeed(args);
 var config = GameConfig.CreateBaseline();
+if (args.Length > 1)
+{
+    if ((args.Length != 3 && args.Length != 5) || args[1] != "--season") throw new ArgumentException("Usage: seed [--season season-uuid [--api-url http://127.0.0.1:5081]]");
+    var seasonId = Guid.Parse(args[2]);
+    var apiUrl = "http://127.0.0.1:5080";
+    if (args.Length == 5)
+    {
+        if (args[3] != "--api-url" || args[4] != "http://127.0.0.1:5081") throw new ArgumentException("Only the isolated local test endpoint is supported.");
+        apiUrl = args[4];
+    }
+    using var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseProxy = false }) { Timeout = TimeSpan.FromSeconds(15) };
+    var json = await client.GetStringAsync($"{apiUrl}/api/v1/public/seasons/{seasonId}/config");
+    config = (JsonSerializer.Deserialize<PublishedConfig>(json, new JsonSerializerOptions { IncludeFields = true })
+        ?? throw new InvalidOperationException("Missing season config.")).ToConfig();
+    Console.WriteLine($"season={seasonId}");
+}
 var scoreRule = ScoreRule.CreateBaseline();
 var context = new RunContext(
     config.GameVersion,

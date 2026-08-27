@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Api, percent, points } from "./api";
 import type { Cell, Detail, Report } from "./contracts";
 
@@ -19,12 +19,7 @@ export default function Results({
     [conclusion, setConclusion] = useState("rejected"),
     [variant, setVariant] = useState(""),
     [reason, setReason] = useState("");
-  useEffect(() => {
-    setConclusion("rejected");
-    setVariant("");
-    setReason("");
-    setAgent("novice");
-  }, [detail.id]);
+  const [approver, setApprover] = useState("");
   const cells = report.cells.filter((cell) => cell.agentId === agent),
     variants = detail.definition.variants;
   return (
@@ -49,8 +44,8 @@ export default function Results({
         </article>
         <article className="metric">
           <small>PUBLICATION</small>
-          <strong>미배포</strong>
-          <small>실험 결과와 공개 시즌은 분리</small>
+          <strong>별도 관리</strong>
+          <small>게시 상태는 상단 시즌·이력에서 확인</small>
         </article>
       </div>
       <section className="panel">
@@ -275,6 +270,8 @@ export default function Results({
                         conclusion === "approved_candidate" ? variant : null,
                       reason,
                     },
+                    undefined,
+                    conclusion === "approved_candidate" ? approver : undefined,
                   ),
                 "검토 결과를 기록했습니다. 게임 설정은 배포하지 않았습니다.",
               );
@@ -315,6 +312,19 @@ export default function Results({
                 </div>
               )}
             </div>
+            {conclusion === "approved_candidate" && (
+              <>
+                <label htmlFor="approve-key">승인자 키</label>
+                <input
+                  id="approve-key"
+                  type="password"
+                  autoComplete="off"
+                  value={approver}
+                  onChange={(e) => setApprover(e.target.value)}
+                  required
+                />
+              </>
+            )}
             <label htmlFor="reason">판단 근거</label>
             <textarea
               id="reason"

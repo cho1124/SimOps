@@ -80,7 +80,7 @@ public static class ContractJson
 
     private static JsonSerializerOptions CreateOptions()
     {
-        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web) { IncludeFields = true };
         options.Converters.Add(new JsonStringEnumConverter());
         return options;
     }
@@ -90,7 +90,7 @@ public static class SubmissionValidator
 {
     public const int MaximumActions = 10_000;
 
-    public static void Validate(RunSubmission submission, bool requireAgent = true)
+    public static void Validate(RunSubmission submission, bool requireAgent = true, GameConfig? registeredConfig = null)
     {
         if (submission is null)
         {
@@ -125,7 +125,7 @@ public static class SubmissionValidator
             throw new SubmissionValidationException("AGENT_VERSION_UNKNOWN", "The agent definition is not supported.");
         }
 
-        var config = GameConfig.CreateBaseline();
+        var config = registeredConfig ?? GameConfig.CreateBaseline();
         var scoreRule = ScoreRule.CreateBaseline();
         if (!string.Equals(submission.GameVersion, config.GameVersion, StringComparison.Ordinal) ||
             !string.Equals(submission.ConfigChecksum, config.Checksum, StringComparison.Ordinal) ||

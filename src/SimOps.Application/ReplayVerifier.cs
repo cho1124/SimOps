@@ -6,10 +6,10 @@ namespace SimOps.Application;
 
 public sealed class ReplayVerifier
 {
-    public VerificationOutput Verify(RunSubmission submission)
+    public VerificationOutput Verify(RunSubmission submission, GameConfig? registeredConfig = null)
     {
-        SubmissionValidator.Validate(submission, requireAgent: false);
-        var config = GameConfig.CreateBaseline();
+        var config = registeredConfig ?? GameConfig.CreateBaseline();
+        SubmissionValidator.Validate(submission, requireAgent: false, registeredConfig: config);
         var scoreRule = ScoreRule.CreateBaseline();
         var context = new RunContext(
             submission.GameVersion,

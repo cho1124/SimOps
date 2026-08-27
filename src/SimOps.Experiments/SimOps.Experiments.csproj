@@ -4,6 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../SimOps.Game.Transport/SimOps.Game.Transport.csproj" />
     <ProjectReference Include="../SimOps.Agent.Core/SimOps.Agent.Core.csproj" />
   </ItemGroup>
 </Project>

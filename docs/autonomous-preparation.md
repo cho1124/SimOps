@@ -35,9 +35,9 @@
 
 ## 재개 위치
 
-2026-08-27 갱신: M7까지 구현·자동 검증했다. 상세 상태는 [구현 기록](implementation/README.md)을 기준으로 한다.
+2026-08-27 갱신: M8까지 구현·자동 검증했다. 상세 상태는 [구현 기록](implementation/README.md)을 기준으로 한다.
 
-1. 다음 구현: [M8 LiveOps 폐루프](07-implementation-plan.md#마일스톤-8-liveops-폐루프)의 승인된 Config 게시·동기화·롤백
+1. [M8 LiveOps 폐루프](implementation/milestone-08-liveops.md) 구현·격리 통합 검증 완료. 다음 실제 실험은 실패 결과를 바탕으로 가설·후보·판정 기준에 대한 소유자 판단이 필요하다.
 2. 현재 실험 `difficulty-curve-001`은 검토 후보 없음, `analyzing`, 사람 판정 미작성이다. 자동 승인·게시는 하지 않는다.
 3. [M7 로컬 AI 분석](implementation/milestone-07-ai-analysis.md)의 근거 제한·실패 격리·반복 검증 결과 확인
 4. 별도 QA: 실제 브라우저 조작, Windows 화면, Android 실기기 검증
