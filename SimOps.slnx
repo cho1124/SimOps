@@ -12,6 +12,7 @@
     <Project Path="src/SimOps.Worker/SimOps.Worker.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/SimOps.Client.Specs/SimOps.Client.Specs.csproj" />
     <Project Path="tests/SimOps.Agent.Specs/SimOps.Agent.Specs.csproj" />
     <Project Path="tests/SimOps.Backend.Specs/SimOps.Backend.Specs.csproj" />
     <Project Path="tests/SimOps.Experiment.Specs/SimOps.Experiment.Specs.csproj" />

@@ -38,7 +38,7 @@ namespace SimOps.Unity
             Busy = true;
             try
             {
-                if (CoreChecksum.Length != 64) { Report("Missing packaged Game Core checksum."); yield break; }
+                if (CoreChecksum.Length != 64) { Report("게임 버전 정보가 없습니다. 실행 파일을 다시 빌드해 주세요."); yield break; }
                 if (string.IsNullOrEmpty(_credential))
                 {
                     OnlineCredentialData registration = null;
@@ -69,7 +69,7 @@ namespace SimOps.Unity
                 if (DateTimeOffset.TryParse(ticket.expiresAt, out var expiry) && expiry <= DateTimeOffset.UtcNow)
                 {
                     _pendingBeginKey = null;
-                    Report("Ticket expired while retrying. Start a new ranked run.");
+                    Report("랭킹 도전 유효 시간이 지났습니다. 새 랭킹 도전을 시작해 주세요.");
                     yield break;
                 }
                 PublishedConfig config = null;
@@ -79,7 +79,7 @@ namespace SimOps.Unity
                 ticket.config = config;
                 ticket.submitKey = Guid.NewGuid().ToString("N");
                 _pendingBeginKey = null;
-                Report("Ranked run ready. Ticket expires: " + ticket.expiresAt);
+                Report("랭킹 도전 준비 완료. 결과는 한 판이 끝난 뒤 제출할 수 있습니다.");
                 ready(ticket);
             }
             finally { Busy = false; }
@@ -103,6 +103,7 @@ namespace SimOps.Unity
                 OnlineReceiptData receipt = null;
                 yield return Request("POST", "/api/v1/player/runs", body, json => receipt = JsonUtility.FromJson<OnlineReceiptData>(json));
                 if (receipt == null) { completed?.Invoke(false); yield break; }
+                Report("서버 접수 완료 · 행동 로그를 재실행해 검증하고 있습니다.");
                 for (var attempt = 0; attempt < 20; attempt++)
                 {
                     OnlineRunStatus status = null;
@@ -110,19 +111,19 @@ namespace SimOps.Unity
                     if (status == null) { completed?.Invoke(false); yield break; }
                     if (status.status == "verified")
                     {
-                        Report("Server verified your run. Score: " + status.result.finalScore);
+                        Report("서버 검증 완료 · 점수 " + status.result.finalScore.ToString("N0"));
                         completed?.Invoke(true);
                         yield break;
                     }
                     if (status.status == "rejected" || status.status == "failed")
                     {
-                        Report(status.status + ": " + status.rejectionCode);
+                        Report("서버 검증 실패 · " + status.rejectionCode);
                         completed?.Invoke(false);
                         yield break;
                     }
                     yield return new WaitForSecondsRealtime(0.5f);
                 }
-                Report("Verification is still pending. Submit again to check the same run.");
+                Report("아직 검증 대기 중입니다. 결과 버튼을 다시 누르면 같은 기록의 상태를 확인합니다.");
                 completed?.Invoke(false);
             }
             finally { Busy = false; }
@@ -145,10 +146,11 @@ namespace SimOps.Unity
                 yield return Request("GET", "/api/v1/public/seasons/" + seasonId + "/leaderboard?limit=3", null,
                     json => ranking = JsonUtility.FromJson<OnlineRankingData>(json));
                 if (ranking == null) yield break;
-                var text = new StringBuilder("SEASON " + ranking.status + " | verified players " + ranking.totalPlayers);
-                foreach (var entry in ranking.entries) text.Append("\n#").Append(entry.rank).Append(" ").Append(entry.nickname).Append(" — ").Append(entry.score);
+                var text = new StringBuilder((ranking.status == "active" ? "진행 중 시즌" : "종료 시즌") + " · 검증된 플레이어 " + ranking.totalPlayers + "명");
+                foreach (var entry in ranking.entries) text.Append("\n").Append(entry.rank).Append("위  ").Append(entry.nickname).Append(" — ").Append(entry.score).Append("점");
                 if (ranking.currentPlayer != null && !string.IsNullOrEmpty(ranking.currentPlayer.playerId))
-                    text.Append("\nYOU #").Append(ranking.currentPlayer.rank).Append(" — ").Append(ranking.currentPlayer.score);
+                    text.Append("\n내 최고 기록  ").Append(ranking.currentPlayer.rank).Append("위 — ").Append(ranking.currentPlayer.score).Append("점");
+                else text.Append("\n아직 이 시즌에 등록된 내 최고 기록이 없습니다.");
                 Report(text.ToString());
                 received?.Invoke(ranking);
             }
@@ -172,7 +174,12 @@ namespace SimOps.Unity
                 if (request.result != UnityWebRequest.Result.Success)
                 {
                     LastError = "API " + request.responseCode + ": " + (string.IsNullOrEmpty(request.downloadHandler.text) ? request.error : request.downloadHandler.text);
-                    Report(LastError);
+                    var code = "";
+                    try { code = JsonUtility.FromJson<OnlineErrorData>(request.downloadHandler.text)?.code ?? ""; } catch (ArgumentException) { }
+                    Report(request.responseCode == 0 ? "서버에 연결할 수 없습니다. 로컬 API 실행과 네트워크를 확인한 뒤 재시도하세요."
+                        : code == "TICKET_EXPIRED" ? "랭킹 도전 유효 시간이 지났습니다. 기록을 제출할 수 없습니다."
+                        : code == "SEASON_NOT_ACTIVE" ? "시즌이 종료되어 이 기록을 제출할 수 없습니다."
+                        : $"서버 요청 실패 ({request.responseCode}) · {code}");
                     yield break;
                 }
                 success(request.downloadHandler.text);
@@ -190,6 +197,7 @@ namespace SimOps.Unity
     }
     [Serializable] public sealed class OnlineSeasonData { public string seasonId; }
     [Serializable] public sealed class OnlineCredentialData { public string playerId; public string credential; public string normalizedNickname; }
+    [Serializable] internal sealed class OnlineErrorData { public string code; }
     [Serializable] public sealed class OnlineReceiptData { public string runId; public string status; }
     [Serializable] public sealed class OnlineRunStatus { public string status; public string rejectionCode; public OnlineResultData result; }
     [Serializable] public sealed class OnlineResultData { public int finalScore; }

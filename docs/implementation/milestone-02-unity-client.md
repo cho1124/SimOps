@@ -67,4 +67,4 @@ Unity 버전은 `ProjectSettings/ProjectVersion.txt`에서 읽고, 로그와 Bui
 - 매 Action 저장 후 강제 종료·복귀 시 누락·중복 없이 복구되는지 확인
 - Android Player에서 Golden Fixture Hash 수집
 
-Windows에서도 실제 키보드·pointer 조작과 해상도별 시각 QA는 수동 체크 항목으로 남긴다. 구현과 자동 Build가 완료됐다는 사실과 실기기 사용성이 검증됐다는 사실을 구분해 기록한다.
+Windows에서도 실제 키보드·pointer 조작은 수동 체크 항목으로 남긴다. 2026-08-27 [화면 개선](unity-ui-refresh.md)에서 세 해상도의 UI 렌더 출력과 한글·배치를 확인했다. 렌더 검사와 실제 기기 사용성이 검증됐다는 사실은 구분한다.

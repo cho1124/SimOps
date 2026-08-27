@@ -18,6 +18,8 @@ if (-not (Test-Path -LiteralPath $unityEditor)) {
 
 New-Item -ItemType Directory -Force -Path $logDirectory | Out-Null
 & (Join-Path $PSScriptRoot 'Build-GameCorePackage.ps1') -Configuration Release
+dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Client.Specs') -c Release --no-build
+if ($LASTEXITCODE -ne 0) { throw 'Client presentation specs failed.' }
 
 function Invoke-UnityMethod {
     param(

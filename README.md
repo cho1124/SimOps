@@ -20,6 +20,8 @@ SimOps는 Unity 게임을 합성 플레이어가 반복 플레이하고, 그 결
 
 마일스톤별 구현 범위와 검증 결과는 [구현 기록](docs/implementation/README.md)에 남겨두었다.
 
+Unity 플레이 화면은 한국어 전투·보상·결과 패널로 개선했다. HP·행동력·적 행동 예고, 보상 카드, 결과 제출 상태와 덮어쓰기 확인창을 제공한다. [UI 개선과 렌더 검사](docs/implementation/unity-ui-refresh.md)에 실행 방법과 실기기 QA 범위를 정리했다.
+
 ## 로컬 실행
 
 필요 환경은 .NET SDK 10.0.101이다. 저장소의 `global.json`이 같은 SDK 계열을 고정한다.

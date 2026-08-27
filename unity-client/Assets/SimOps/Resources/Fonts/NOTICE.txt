@@ -1,0 +1,8 @@
+Noto Sans KR Regular (unmodified, Sans2.004 release)
+Copyright 2014-2021 Adobe (http://www.adobe.com/).
+Noto is a trademark of Google Inc.
+
+Licensed under the SIL Open Font License 1.1. See OFL.txt.
+Source: https://github.com/notofonts/noto-cjk/tree/Sans2.004
+Asset: Sans/SubsetOTF/KR/NotoSansKR-Regular.otf
+SHA256: 69975a0ac8472717870aefeab0a4d52739308d90856b9955313b2ad5e0148d68

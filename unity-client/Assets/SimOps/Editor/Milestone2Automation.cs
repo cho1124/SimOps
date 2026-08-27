@@ -162,6 +162,11 @@ namespace SimOps.Unity.Editor
                     $"{platform} build failed: {report.summary.result}, errors={report.summary.totalErrors}");
             }
 
+            var notices = Path.Combine(Path.GetDirectoryName(options.locationPathName), "licenses", "NotoSansKR");
+            Directory.CreateDirectory(notices);
+            foreach (var file in new[] { "NOTICE.txt", "OFL.txt" })
+                File.Copy(Path.Combine(Application.dataPath, "SimOps", "Resources", "Fonts", file), Path.Combine(notices, file), true);
+
             Debug.Log(
                 $"SIMOPS_BUILD_PASS platform={platform} output={options.locationPathName} " +
                 $"bytes={report.summary.totalSize}");
