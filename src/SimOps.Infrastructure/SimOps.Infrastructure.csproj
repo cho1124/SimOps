@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SimOps.Application/SimOps.Application.csproj" />
+    <PackageReference Include="Npgsql" Version="10.0.3" />
+    <EmbeddedResource Include="Migrations/001_initial.sql" />
+  </ItemGroup>
+</Project>

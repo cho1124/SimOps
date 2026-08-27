@@ -10,8 +10,8 @@ SimOps는 Unity 게임을 합성 플레이어가 반복 플레이하고, 그 결
 
 ## 현재 상태
 
-- 단계: 마일스톤 1·3 완료, 2 구현·빌드 완료(실기기 QA 대기), 마일스톤 4 준비
-- 구현: 결정론적 Game Core, Unity Windows·Android Client, 합성 플레이어 6종, Headless Simulation, 자동 검증 Harness
+- 단계: 마일스톤 1·3·4 완료, 2 구현·빌드 완료(실기기 QA 대기), 마일스톤 5 준비
+- 구현: 결정론적 Game Core, Unity Windows·Android Client, 합성 플레이어 6종, Headless Simulation, API·Worker·PostgreSQL 재실행 검증
 - 확정된 게임 형식: 6번의 짧은 전투와 전투 사이 보상 선택이 있는 턴제 미니 로그라이크
 - 확정된 클라이언트 범위: 하나의 Unity 프로젝트에서 Windows와 Android 지원
 - 비동기 경쟁 요소: 시즌·버전 기반 랭킹
@@ -44,6 +44,8 @@ dotnet run --project src/SimOps.Simulation.Cli -c Release -- --runs 1000 --json 
 ```
 
 ## 설계 문서 읽는 순서
+
+로컬 백엔드 통합 검증은 Docker Desktop 실행 후 `powershell -File scripts/Run-Milestone4.ps1`로 재현한다. [백엔드 구현 기록](docs/implementation/milestone-04-backend-data.md)에 API 계약·개발용 설정·검증 범위를 정리했다.
 
 1. [프로젝트 로드맵](docs/00-roadmap.md)
 2. [프로젝트 정의](docs/01-product-brief.md)

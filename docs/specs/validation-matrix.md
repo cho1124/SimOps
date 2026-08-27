@@ -64,6 +64,11 @@
 | AGENT-003 | 완료 | 공격·방어·효율·탐색 성향 신호 분리 통과 |
 | AGENT-004 | 완료 | 개발 장비 Headless 처리량 목표 100 Run/s 초과 |
 | METRIC-001 | 완료 | 0분모 null·reason 및 Agent Version 혼합 거부 |
+| API-001·002·003 | 완료 | readiness/OpenAPI·운영자 인증·warm 제출 지연 검증 |
+| EVENT-001 | 완료 | Run별 Encounter 시작·종료 수와 Stage Summary 일치 |
+| VERIFY-001 | 합성 Run 완료 | 8건 동시 제출 하나의 Run, 다른 payload 충돌; 인간 Ticket은 M5 |
+| VERIFY-002 / JOB-001 | 완료 | 만료 lease 회수·stale token 차단·중복 완료·최대 재시도 실패 |
+| VERIFY-003·004·005 | 완료 | Hash 변조·불연속 sequence·미제시 보상 거부 |
 
 실행 명령과 고정값은 [마일스톤 1 구현 기록](../implementation/milestone-01-game-core.md)에 있다.
 
