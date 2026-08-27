@@ -48,6 +48,21 @@
 | DEPLOY-002 | 유휴 Worker wake 후 Job 실행 | Job 유실·중복 0, 상태 조회 가능 |
 | DEPLOY-003 | 무료 할당량 초과 방지 | 카드·과금 없이 중단 또는 사전 차단 |
 
+## 현재 자동화 현황
+
+마일스톤 1에서 아래 항목을 dependency-free Console Spec Harness로 자동화했다. 나머지 항목은 해당 마일스톤에서 계속 추가한다.
+
+| 테스트 | 구현 상태 | 최근 결과 |
+|---|---|---|
+| CORE-001 | 완료 | 1,000개 Seed의 실행·Replay Hash 불일치 0 |
+| CORE-002·003 | 완료 | RNG Stream 분리 및 ko-KR/tr-TR locale 비교 통과 |
+| CORE-013·022·024·028 | 완료 | 종료·무효 행동·Item·Turn 제한 불변조건 통과 |
+| CORE-030·031·034 | 완료 | 후보 3개·미제시 선택 거부·Pool 사전 검증 통과 |
+| CORE-041·043 | 완료 | checksum 및 Config 구조 검증 통과 |
+| Golden Seed 42 | 완료 | Debug·Release Result Hash 일치 |
+
+실행 명령과 고정값은 [마일스톤 1 구현 기록](../implementation/milestone-01-game-core.md)에 있다.
+
 ## Golden Fixture
 
 Game Version마다 최소 다음 Fixture를 유지한다.

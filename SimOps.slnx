@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SimOps.Game.Core/SimOps.Game.Core.csproj" />
+    <Project Path="src/SimOps.Runner/SimOps.Runner.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SimOps.Game.Core.Specs/SimOps.Game.Core.Specs.csproj" />
+  </Folder>
+</Solution>

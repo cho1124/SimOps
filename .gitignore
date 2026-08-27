@@ -1,29 +1,15 @@
-# Unity
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-[Uu]ser[Ss]ettings/
-MemoryCaptures/
-Recordings/
-
-# IDE
-.idea/
+**/bin/
+**/obj/
+artifacts/
 .vs/
+.idea/
 .vscode/
-*.csproj
-*.sln
-*.suo
 *.user
 *.userprefs
+*.suo
+*.pdb
 
-# .NET
-bin/
-obj/
-
-# Node
+# Web
 node_modules/
 .next/
 dist/
@@ -45,3 +31,13 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
+# Unity generated directories (Milestone 2)
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+MemoryCaptures/
+Recordings/

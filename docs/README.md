@@ -39,5 +39,6 @@
 
 - [플랫폼 독립 명세](specs/README.md)
 - [자동 진행 결과](autonomous-preparation.md)
+- [구현 기록](implementation/README.md)
 
 승인된 ADR과 위 확정 문서는 현재 구현 기준이다. 이후 변경은 관련 ADR의 재검토 조건과 측정 근거를 함께 기록한다.
