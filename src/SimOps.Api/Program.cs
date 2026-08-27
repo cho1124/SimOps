@@ -1,11 +1,13 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading.RateLimiting;
 using SimOps.Agent.Core;
 using SimOps.Application;
 using SimOps.Game.Core;
 using SimOps.Infrastructure;
+using SimOps.Experiments;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = Environment.GetEnvironmentVariable("SIMOPS_CONNECTION_STRING")
@@ -26,6 +28,9 @@ builder.Services.AddSingleton(new PostgresRunStore(connectionString));
 builder.Services.AddSingleton(new RunTicketSigner(ticketKey));
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
+    .WithOrigins("http://127.0.0.1:5173", "http://localhost:5173")
+    .WithMethods("GET", "POST").WithHeaders("Content-Type", "X-SimOps-Admin-Key")));
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -47,6 +52,7 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 await app.Services.GetRequiredService<PostgresRunStore>().InitializeAsync();
+app.UseCors();
 
 app.Use(async (context, next) =>
 {
@@ -69,6 +75,11 @@ app.Use(async (context, next) =>
     {
         await next();
     }
+    catch (ExperimentCommandException exception)
+    {
+        context.Response.StatusCode = exception.StatusCode;
+        await context.Response.WriteAsJsonAsync(new ApiError(exception.Code, exception.Message, exception.StatusCode == 429, correlationId));
+    }
     catch (PlayerAccessException exception)
     {
         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -89,6 +100,11 @@ app.Use(async (context, next) =>
         context.Response.StatusCode = StatusCodes.Status400BadRequest;
         await context.Response.WriteAsJsonAsync(new ApiError("REQUEST_INVALID", "The request body is invalid.", false, correlationId));
     }
+    catch (JsonException)
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        await context.Response.WriteAsJsonAsync(new ApiError("REQUEST_INVALID", "The JSON schema is invalid or has missing/unknown fields.", false, correlationId));
+    }
     catch (Exception exception)
     {
         app.Logger.LogError(exception, "Request {CorrelationId} failed", correlationId);
@@ -108,6 +124,44 @@ app.MapGet("/api/v1/catalog/baseline", () => Results.Ok(new
     scoreRule = ScoreRule.CreateBaseline(),
     agents = AgentFactory.CreateDefinitions(),
 }));
+app.MapGet("/api/v1/experiments", async (PostgresRunStore store, CancellationToken token) => Results.Ok(await store.ListExperimentsAsync(token)));
+app.MapGet("/api/v1/catalog/configs/{checksum}", async (string checksum, PostgresRunStore store, CancellationToken token) =>
+    await store.GetRegisteredConfigJsonAsync(checksum, token) is { } json ? Results.Content(json, "application/json") : Results.NotFound());
+app.MapGet("/api/v1/catalog/experiment-template", () =>
+{
+    using var stream = typeof(Program).Assembly.GetManifestResourceStream("SimOps.ExperimentTemplate.json")!;
+    using var reader = new StreamReader(stream);
+    return Results.Content(reader.ReadToEnd(), "application/json");
+});
+app.MapPost("/api/v1/experiments", async (JsonElement request, PostgresRunStore store, CancellationToken token) =>
+    Results.Ok(await store.SaveExperimentAsync(request.Deserialize<SaveExperimentRequest>(ExperimentJson.Options)
+        ?? throw new JsonException("Missing request"), token))).RequireRateLimiting("submission");
+app.MapGet("/api/v1/experiments/{id}", async (string id, PostgresRunStore store, CancellationToken token) =>
+    await store.GetExperimentAsync(id, token) is { } experiment ? Results.Ok(experiment) : Results.NotFound());
+app.MapPost("/api/v1/experiments/{id}/ready", async (string id, ExperimentCommandRequest request, PostgresRunStore store, CancellationToken token) =>
+{
+    await store.MarkExperimentReadyAsync(id, request.PlanHash, token);
+    return Results.Ok(await store.GetExperimentAsync(id, token));
+}).RequireRateLimiting("submission");
+app.MapPost("/api/v1/experiments/{id}/batches", async (string id, StartBatchRequest request, PostgresRunStore store, CancellationToken token) =>
+{
+    var batchId = await store.StartBatchAsync(id, request, token);
+    return Results.Accepted($"/api/v1/simulation-batches/{batchId}", new { batchId });
+}).RequireRateLimiting("submission");
+app.MapGet("/api/v1/simulation-batches/{id:guid}", async (Guid id, PostgresRunStore store, CancellationToken token) =>
+    await store.GetBatchAsync(id, token) is { } batch ? Results.Ok(batch) : Results.NotFound());
+app.MapPost("/api/v1/simulation-batches/{id:guid}/cancel", async (Guid id, PostgresRunStore store, CancellationToken token) =>
+{
+    await store.CancelSimulationBatchAsync(id, token);
+    return Results.Ok(await store.GetBatchAsync(id, token));
+}).RequireRateLimiting("submission");
+app.MapGet("/api/v1/experiments/{id}/results", async (string id, bool? full, PostgresRunStore store, CancellationToken token) =>
+    await store.GetExperimentResultJsonAsync(id, full ?? false, token) is { } json ? Results.Content(json, "application/json") : Results.NotFound());
+app.MapPost("/api/v1/experiments/{id}/decision", async (string id, ExperimentDecisionRequest request, PostgresRunStore store, CancellationToken token) =>
+{
+    await store.DecideExperimentAsync(id, request, token);
+    return Results.Ok(await store.GetExperimentAsync(id, token));
+}).RequireRateLimiting("submission");
 app.MapPost("/api/v1/synthetic-runs", async (RunSubmission submission, PostgresRunStore store, CancellationToken token) =>
 {
     var receipt = await store.SubmitAsync(submission, token);

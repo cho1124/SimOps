@@ -6,5 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SimOps.Infrastructure/SimOps.Infrastructure.csproj" />
+    <None Include="../../docs/experiments/difficulty-curve-001.json" Link="registered-plan.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

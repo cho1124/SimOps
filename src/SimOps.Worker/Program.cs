@@ -12,6 +12,7 @@ var connectionString = Environment.GetEnvironmentVariable("SIMOPS_CONNECTION_STR
 builder.Services.AddSingleton(new PostgresRunStore(connectionString));
 builder.Services.AddSingleton<ReplayVerifier>();
 builder.Services.AddHostedService<VerificationWorker>();
+builder.Services.AddHostedService<SimulationWorker>();
 await builder.Build().RunAsync();
 
 internal sealed class VerificationWorker : BackgroundService

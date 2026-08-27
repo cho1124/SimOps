@@ -75,8 +75,12 @@
 | EXP-CALC-001·002 | 완료 | 누락/미지원 정의·중복 Cell·Seed overflow 거부, 공격력만 변경하고 Control 보존 |
 | EXP-CALC-003·004·005 | 완료 | paired bootstrap·시작 cohort MAE·공통 생존자 Turn 비교 검증 |
 | EXP-CALC-006·007·008·009 | 완료 | 전수 Replay·반복 digest·입력 snapshot·취소·0분모·문화권 독립 검증 |
+| EXP-001 / CFG-001 | 완료 | Ready 이후 정의·Variant·Config 수정 거부, 감사 로그 append-only |
+| EXP-002 / BATCH-001·002·004·005 | 완료 | 18 Cell 이후 집계, 중복 완료·lease 회수·취소·한도 초과 실패·동시 Batch 제한 |
+| EXP-HTTP-001·002·003 | 완료 | 운영자 인증·엄격한 스키마·자원 제한·멱등 접수·18,000 Run 저장 결과 일치 |
+| UI-001~006 | 자동 검증 완료 | React 컴포넌트 인증·후보 없음·성향 선택·검토 근거·Snapshot 불일치·오류·0분모 |
 
-`EXP-CALC-*`는 로컬 실험 계산기 검증이다. `EXP-001`의 Ready 상태 DB 수정 금지나 `BATCH-001`의 비동기 중복 완료 제약을 구현했다고 뜻하지 않는다. 정식 실험 18,000 Run × 2회와 결과는 [마일스톤 6 엔진 기록](../implementation/milestone-06-experiment-engine.md)을 따른다.
+`EXP-CALC-*`는 계산기 검증이며 DB/HTTP/화면 검증과 구분한다. M6 기준 중복 제외 63개 테스트가 통과했다. React 테스트는 jsdom 컴포넌트 테스트로, 실제 브라우저의 화면·입력 QA를 대체하지 않는다. [엔진 결과](../implementation/milestone-06-experiment-engine.md)와 [대시보드·영속 실행 검증](../implementation/milestone-06-dashboard.md)을 함께 따른다.
 
 실행 명령과 고정값은 [마일스톤 1 구현 기록](../implementation/milestone-01-game-core.md)에 있다.
 

@@ -9,6 +9,7 @@ using SimOps.Game.Core;
 using SimOps.Infrastructure;
 
 var mode = args.Length > 0 ? args[0] : "--http";
+if (mode is "--experiment-http" or "--experiment-db") return await ExperimentSpecs.RunAsync(mode == "--experiment-db");
 if (mode is "--ranking" or "--ranking-db") return await RankingSpecs.RunAsync(mode == "--ranking-db");
 var tests = mode == "--lease"
     ? new (string Name, Func<Task> Execute)[]

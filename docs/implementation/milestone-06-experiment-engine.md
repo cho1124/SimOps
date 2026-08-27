@@ -2,6 +2,8 @@
 
 검증일: 2026-08-27. 상태: **로컬 계산·비교 엔진 완료, 마일스톤 6 전체는 진행 중**.
 
+후속 구현: [M6 대시보드·영속 Batch 기록](milestone-06-dashboard.md)에서 DB/Worker·웹 연결을 완료했다. 이 문서의 미구현 항목은 엔진 단독 구현 시점의 기록이다.
+
 ## 이번에 완성한 부분
 
 `SimOps.Experiments`와 Simulation CLI를 연결했다. 사전 등록 JSON에서 Control과 두 Treatment를 만들고, 동일 Persona/Seed의 실행을 짝지어 비교한다. 각 Run의 행동 로그를 해당 설정으로 다시 실행해 Result Hash를 검증한다. 잘못된 입력·전이·Replay 불일치는 실행 실패이며, 보호 기준을 충족한 후보가 없는 것은 정상 결과다.

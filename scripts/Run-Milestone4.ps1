@@ -1,4 +1,4 @@
-param([switch]$IncludeRanking, [switch]$IncludeUnitySmoke)
+param([switch]$IncludeRanking, [switch]$IncludeUnitySmoke, [switch]$IncludeExperiments)
 
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
@@ -101,6 +101,12 @@ try {
         Select-String -LiteralPath $playerLog -Pattern 'SIMOPS_ONLINE_' | ForEach-Object { Write-Host $_.Line }
     }
 
+    if ($IncludeExperiments) {
+        Start-Sleep -Milliseconds 1100
+        dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Backend.Specs') -c Release --no-build -- --experiment-http
+        Assert-CommandSucceeded 'Experiment HTTP and durable worker specs'
+    }
+
     Stop-Process -Id $workerProcess.Id
     $workerProcess.WaitForExit()
     $workerProcess = $null
@@ -110,6 +116,13 @@ try {
     if ($IncludeRanking) {
         dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Backend.Specs') -c Release --no-build -- --ranking-db
         Assert-CommandSucceeded 'Ranking database specs'
+    }
+
+    if ($IncludeExperiments) {
+        dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Backend.Specs') -c Release --no-build -- --experiment-db
+        Assert-CommandSucceeded 'Experiment isolated database specs'
+        dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Experiment.Specs') -c Release --no-build
+        Assert-CommandSucceeded 'Experiment calculator specs'
     }
 
     dotnet run --project (Join-Path $repositoryRoot 'tests\SimOps.Game.Core.Specs') -c Release --no-build

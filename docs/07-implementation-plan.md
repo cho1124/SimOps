@@ -14,7 +14,7 @@
 | 3. 합성 플레이어 | 완료 | [구현 및 6,000 Run 기준선](implementation/milestone-03-synthetic-players.md) |
 | 4. 백엔드와 데이터 | 완료 | [수집·검증·lease 복구 기록](implementation/milestone-04-backend-data.md) |
 | 5. 랭킹 | 구현·통합 검증 완료 | [인간 Ticket·랭킹·Unity 연결](implementation/milestone-05-human-ranking.md), 수동 화면/실기기 QA 대기 |
-| 6. 실험 대시보드 | 일부 구현 | [사전 등록 실험 엔진·18,000 Run 비교](implementation/milestone-06-experiment-engine.md) 완료, DB/Worker·대시보드 연결 대기 |
+| 6. 실험 대시보드 | 구현·자동 검증 완료 | [실험 엔진](implementation/milestone-06-experiment-engine.md), [React·영속 Batch·검토 기록](implementation/milestone-06-dashboard.md), 브라우저 수동 QA 대기 |
 | 7~8. AI·LiveOps | 미구현 | 계산된 지표 기반 분석·사람 승인·게시·롤백 |
 
 ## 마일스톤 0: 설계 기준선
@@ -78,7 +78,7 @@
 
 ## 마일스톤 6: 실험 대시보드
 
-현재: 로컬 CLI의 Variant 생성·전수 Replay·paired 비교·보호 기준 판정까지 구현했다. 첫 실험은 두 후보 모두 탈락했으며 이는 정상적인 실험 결과다. 웹 대시보드와 영속적 실행·승인 상태 관리는 아직 완료하지 않았다.
+현재: CLI의 Variant 생성·전수 Replay·paired 비교를 영속 Cell Job과 연결했다. React/Vite 대시보드의 초안·확정·실행·취소·지표·검토 기록, PostgreSQL 불변성과 lease 복구까지 구현·자동 검증했다. 첫 실험은 두 후보 모두 탈락했으며 이는 정상 결과다. 실제 브라우저 화면·입력 수동 QA와 공개 배포는 아직 수행하지 않았다.
 
 - 실험과 Variant 관리
 - 대량 실행 요청

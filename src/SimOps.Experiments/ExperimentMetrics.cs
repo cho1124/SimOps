@@ -66,7 +66,7 @@ public static class PairedStatistics
     }
 
     public static PairedEstimate Bootstrap(IReadOnlyList<RunEvidence> control, IReadOnlyList<RunEvidence> treatment,
-        int repetitions, ulong seed, IReadOnlyList<double>? curveTargets = null)
+        int repetitions, ulong seed, IReadOnlyList<double>? curveTargets = null, CancellationToken cancellationToken = default)
     {
         ValidatePairs(control, treatment);
         if (repetitions < 1) throw new ArgumentOutOfRangeException(nameof(repetitions));
@@ -76,6 +76,7 @@ public static class PairedStatistics
         var treatmentFailures = new int[6];
         for (var iteration = 0; iteration < repetitions; iteration++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             Array.Clear(controlFailures);
             Array.Clear(treatmentFailures);
             var clearDifference = 0;

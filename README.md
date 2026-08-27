@@ -10,8 +10,8 @@ SimOps는 Unity 게임을 합성 플레이어가 반복 플레이하고, 그 결
 
 ## 현재 상태
 
-- 단계: 마일스톤 1·3·4 완료, 2·5 구현·빌드·통합 검증 완료(수동 화면/실기기 QA 대기), 6의 로컬 실험 엔진 완료, 대시보드와 7~8 미구현
-- 구현: 결정론적 Game Core, Unity Windows·Android Client, 합성 플레이어 6종, API·Worker·PostgreSQL 재실행 검증, 익명 Player·Ticket·시즌 랭킹, 사전 등록 Control/Treatment 비교 엔진
+- 단계: 마일스톤 1·3·4 완료, 2·5 구현·통합 검증 완료(수동 화면/실기기 QA 대기), 6 대시보드·영속 실험 구현 및 자동 검증 완료(브라우저 수동 QA 대기), 7~8 미구현
+- 구현: 결정론적 Game Core, Unity Windows·Android Client, 합성 플레이어 6종, API·Worker·PostgreSQL 재실행 검증, 익명 Player·Ticket·시즌 랭킹, 사전 등록 비교 엔진, React 실험 대시보드와 영속 Batch
 - 확정된 게임 형식: 6번의 짧은 전투와 전투 사이 보상 선택이 있는 턴제 미니 로그라이크
 - 확정된 클라이언트 범위: 하나의 Unity 프로젝트에서 Windows와 Android 지원
 - 비동기 경쟁 요소: 시즌·버전 기반 랭킹
@@ -54,6 +54,15 @@ powershell -ExecutionPolicy Bypass -File scripts/Run-DifficultyExperiment.ps1
 ```
 
 두 후보 모두 사전 기준에 미달하여 **게시 후보 없음**으로 종료했다. [실험 엔진 구현·결과 기록](docs/implementation/milestone-06-experiment-engine.md)에 실패 이유와 다음 구현 범위를 남겼다. 기존 게임 설정·공개 시즌은 변경하지 않았다.
+
+실험 대시보드와 영속 Worker까지 검증하려면 Node.js 24.12.0과 Docker Desktop이 필요하다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/Run-Milestone6.ps1
+powershell -ExecutionPolicy Bypass -File scripts/Start-LocalLab.ps1 -SkipBuild
+```
+
+검증 명령은 등록된 18,000 Run 실험을 DB에 보존한다. 로컬 실험실은 `http://127.0.0.1:5173`에서 개발용 운영자 키 `simops-local-dev-key`로 연결한다. 키는 탭 메모리에만 보관되며 공개 서비스에 사용하면 안 된다. 실행 터미널을 유지하고 Ctrl+C로 API·Worker·대시보드를 종료한다. [M6 대시보드·DB 구현 기록](docs/implementation/milestone-06-dashboard.md)에 API·재시도·보안 범위를 정리했다.
 
 ## 설계 문서 읽는 순서
 

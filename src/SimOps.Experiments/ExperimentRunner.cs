@@ -15,68 +15,118 @@ public static class ExperimentRunner
     {
         // Snapshot the caller's mutable collections before any progress callbacks or execution.
         definition = ExperimentJson.Parse(JsonSerializer.Serialize(definition, ExperimentJson.Options));
-        var planHash = Hash(definition);
         var cells = new List<CellResult>();
-        var firstSeed = ulong.Parse(definition.FirstSeed, CultureInfo.InvariantCulture);
-        var bootstrapSeed = ulong.Parse(definition.BootstrapSeed, CultureInfo.InvariantCulture);
-        var score = ScoreRule.CreateBaseline();
         foreach (var variant in definition.Variants)
         {
-            var config = definition.CreateConfig(variant);
             foreach (var agentId in definition.AgentIds)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                var agent = AgentFactory.CreateDefinitions().Single(agent => agent.Id == agentId);
-                var metrics = new PersonaMetrics(agent, config.Rewards.Count);
-                var runs = new List<RunEvidence>();
-                var examples = new List<ReplayExample>();
-                var entries = new int[6];
-                var clears = new int[6];
-                var actionCounts = new SortedDictionary<string, int>(StringComparer.Ordinal);
-                var rewardCounts = new SortedDictionary<string, int>(StringComparer.Ordinal);
-                var maximumTurnsReached = 0;
-                for (var offset = 0; offset < definition.RunsPerCell; offset++)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    var seed = checked(firstSeed + (ulong)offset);
-                    var run = SyntheticSimulation.Execute(config, score, agent, seed);
-                    if (run.Result.Outcome is not (RunOutcome.Victory or RunOutcome.Defeat))
-                        throw new InvalidOperationException($"Unexpected terminal outcome in {variant.Id}/{agentId}/{seed}.");
-                    maximumTurnsReached += VerifyReplay(config, score, run);
-                    metrics.Add(run);
-                    foreach (var stage in run.Result.StageSummaries)
-                    {
-                        entries[stage.Stage - 1]++;
-                        if (stage.Cleared) clears[stage.Stage - 1]++;
-                    }
-                    foreach (var pair in run.ActionCounts) Add(actionCounts, pair.Key.ToString(), pair.Value);
-                    foreach (var pair in run.RewardCounts) Add(rewardCounts, pair.Key, pair.Value);
-                    var result = run.Result;
-                    runs.Add(new RunEvidence(seed.ToString(CultureInfo.InvariantCulture), result.Outcome.ToString().ToLowerInvariant(),
-                        result.ClearedStages, result.TotalTurns, result.FinalHealth, result.MaxHealth, result.FinalScore,
-                        result.ResultHash, Hash(run.Actions)));
-                    if (examples.Count == 0 || (examples.Count == 1 && runs[0].Outcome != runs[^1].Outcome))
-                        examples.Add(new ReplayExample(runs[^1].Seed, result.ResultHash, run.Actions));
-                }
-                var stages = Enumerable.Range(0, 6).Select(index => StageMetric.FromCounts(index + 1, entries[index], clears[index], runs.Count)).ToArray();
-                cells.Add(new CellResult(variant.Id, agentId, agent.Version, config.Checksum, runs.Count,
-                    metrics.ClearRate!.Value, PairedStatistics.CurveMae(runs, definition.TargetCumulativeFailureRates),
-                    PairedStatistics.Describe(runs.Select(run => run.TotalTurns)), runs.Average(run => run.FinalHealth / (double)run.MaxHealth),
-                    metrics.RewardEntropy, rewardCounts.Count == 0 ? null : rewardCounts.Values.Max() / (double?)rewardCounts.Values.Sum(),
-                    maximumTurnsReached / (double)entries.Sum(), stages, actionCounts, rewardCounts, runs, examples, Hash(runs)));
-                progress?.Invoke($"{variant.Id}/{agentId}: runs={runs.Count}, clear={metrics.ClearRate:P1}, config={config.Checksum[..12]}");
+                var cell = ExecuteCell(definition, variant.Id, agentId, cancellationToken);
+                cells.Add(cell);
+                progress?.Invoke($"{variant.Id}/{agentId}: runs={cell.ValidRuns}, clear={cell.ClearRate:P1}, config={cell.ConfigChecksum[..12]}");
             }
         }
+        return AssembleReport(definition, cells, cancellationToken);
+    }
+
+    public static string PlanHash(ExperimentDefinition definition) => Hash(Snapshot(definition));
+    public static string ExecutionFingerprint => Hash(new
+    {
+        core = ArtifactHash(typeof(GameSimulation)),
+        agent = ArtifactHash(typeof(SyntheticSimulation)),
+        calculator = ArtifactHash(typeof(ExperimentRunner))
+    });
+    private static ExperimentDefinition Snapshot(ExperimentDefinition definition) =>
+        ExperimentJson.Parse(JsonSerializer.Serialize(definition, ExperimentJson.Options));
+
+    public static CellResult ExecuteCell(ExperimentDefinition definition, string variantId, string agentId,
+        CancellationToken cancellationToken = default)
+    {
+        definition = Snapshot(definition);
+        cancellationToken.ThrowIfCancellationRequested();
+        var variant = definition.Variants.Single(v => v.Id == variantId);
+        if (!definition.AgentIds.Contains(agentId, StringComparer.Ordinal)) throw new ArgumentException("Agent is not registered.");
+        var config = definition.CreateConfig(variant);
+        var firstSeed = ulong.Parse(definition.FirstSeed, CultureInfo.InvariantCulture);
+        var score = ScoreRule.CreateBaseline();
+        var agent = AgentFactory.CreateDefinitions().Single(agent => agent.Id == agentId);
+        var metrics = new PersonaMetrics(agent, config.Rewards.Count);
+        var runs = new List<RunEvidence>();
+        var examples = new List<ReplayExample>();
+        var entries = new int[6];
+        var clears = new int[6];
+        var actionCounts = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        var rewardCounts = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        var maximumTurnsReached = 0;
+        for (var offset = 0; offset < definition.RunsPerCell; offset++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var seed = checked(firstSeed + (ulong)offset);
+            var run = SyntheticSimulation.Execute(config, score, agent, seed);
+            if (run.Result.Outcome is not (RunOutcome.Victory or RunOutcome.Defeat))
+                throw new InvalidOperationException($"Unexpected terminal outcome in {variant.Id}/{agentId}/{seed}.");
+            maximumTurnsReached += VerifyReplay(config, score, run);
+            metrics.Add(run);
+            foreach (var stage in run.Result.StageSummaries)
+            {
+                entries[stage.Stage - 1]++;
+                if (stage.Cleared) clears[stage.Stage - 1]++;
+            }
+            foreach (var pair in run.ActionCounts) Add(actionCounts, pair.Key.ToString(), pair.Value);
+            foreach (var pair in run.RewardCounts) Add(rewardCounts, pair.Key, pair.Value);
+            var result = run.Result;
+            runs.Add(new RunEvidence(seed.ToString(CultureInfo.InvariantCulture), result.Outcome.ToString().ToLowerInvariant(),
+                result.ClearedStages, result.TotalTurns, result.FinalHealth, result.MaxHealth, result.FinalScore,
+                result.ResultHash, Hash(run.Actions)));
+            if (examples.Count == 0 || (examples.Count == 1 && runs[0].Outcome != runs[^1].Outcome))
+                examples.Add(new ReplayExample(runs[^1].Seed, result.ResultHash, run.Actions));
+        }
+        var stages = Enumerable.Range(0, 6).Select(index => StageMetric.FromCounts(index + 1, entries[index], clears[index], runs.Count)).ToArray();
+        return new CellResult(variant.Id, agentId, agent.Version, config.Checksum, runs.Count,
+            metrics.ClearRate!.Value, PairedStatistics.CurveMae(runs, definition.TargetCumulativeFailureRates),
+            PairedStatistics.Describe(runs.Select(run => run.TotalTurns)), runs.Average(run => run.FinalHealth / (double)run.MaxHealth),
+            metrics.RewardEntropy, rewardCounts.Count == 0 ? null : rewardCounts.Values.Max() / (double?)rewardCounts.Values.Sum(),
+            maximumTurnsReached / (double)entries.Sum(), stages, actionCounts, rewardCounts, runs, examples, Hash(runs));
+    }
+
+    public static void ValidateCell(ExperimentDefinition definition, CellResult cell)
+    {
+        var variant = definition.Variants.SingleOrDefault(v => v.Id == cell.VariantId);
+        var first = ulong.Parse(definition.FirstSeed, CultureInfo.InvariantCulture);
+        if (variant is null || !definition.AgentIds.Contains(cell.AgentId, StringComparer.Ordinal) ||
+            cell.AgentVersion != definition.AgentVersion || cell.ConfigChecksum != definition.CreateConfig(variant).Checksum ||
+            cell.ValidRuns != definition.RunsPerCell || cell.Runs.Count != definition.RunsPerCell ||
+            cell.Runs.Where((run, index) => run.Seed != (first + (ulong)index).ToString(CultureInfo.InvariantCulture)).Any() ||
+            cell.SampleHash != Hash(cell.Runs)) throw new ArgumentException("Cell context, seed set or sample hash differs from registration.");
+    }
+
+    public static ExperimentReport AssembleReport(ExperimentDefinition definition, IReadOnlyList<CellResult> completedCells,
+        CancellationToken cancellationToken = default)
+    {
+        definition = Snapshot(definition);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (completedCells.Count != definition.Variants.Count * definition.AgentIds.Count ||
+            completedCells.Select(cell => (cell.VariantId, cell.AgentId)).Distinct().Count() != completedCells.Count)
+            throw new ArgumentException("Every registered cell must be completed exactly once.");
+        foreach (var cell in completedCells) ValidateCell(definition, cell);
+        // jsonb does not preserve object key order. Restore ordinal ordering before canonical hashing.
+        var cells = definition.Variants.SelectMany(v => definition.AgentIds.Select(a => Cell(completedCells, v.Id, a)))
+            .Select(cell => cell with
+            {
+                ActionCounts = new SortedDictionary<string, int>(cell.ActionCounts.ToDictionary(p => p.Key, p => p.Value), StringComparer.Ordinal),
+                RewardCounts = new SortedDictionary<string, int>(cell.RewardCounts.ToDictionary(p => p.Key, p => p.Value), StringComparer.Ordinal)
+            }).ToList();
+        var planHash = Hash(definition);
+        var bootstrapSeed = ulong.Parse(definition.BootstrapSeed, CultureInfo.InvariantCulture);
         var controlId = definition.Variants.Single(variant => variant.Role == "control").Id;
         var comparisons = new List<VariantComparison>();
         var treatments = definition.Variants.Where(variant => variant.Role == "treatment").ToArray();
         foreach (var treatment in treatments)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            comparisons.Add(Compare(definition, cells, controlId, treatment.Id, bootstrapSeed));
+            comparisons.Add(Compare(definition, cells, controlId, treatment.Id, bootstrapSeed, cancellationToken));
         }
         var betweenTreatments = PairedStatistics.Bootstrap(Cell(cells, treatments[0].Id, "novice").Runs,
-            Cell(cells, treatments[1].Id, "novice").Runs, definition.BootstrapReplicates, bootstrapSeed, definition.TargetCumulativeFailureRates);
+            Cell(cells, treatments[1].Id, "novice").Runs, definition.BootstrapReplicates, bootstrapSeed, definition.TargetCumulativeFailureRates, cancellationToken);
         var candidates = comparisons.Where(comparison => comparison.EligibleForHumanReview)
             .OrderBy(comparison => Cell(cells, comparison.VariantId, "novice").CurveTargetMae)
             .ThenBy(comparison => comparison.VariantId, StringComparer.Ordinal).Select(comparison => comparison.VariantId).ToArray();
@@ -87,13 +137,13 @@ public static class ExperimentRunner
             completed, completed, 0, 0, Hash(new { planHash, cells, comparisons, betweenTreatments, candidates }));
     }
 
-    private static VariantComparison Compare(ExperimentDefinition definition, List<CellResult> cells, string controlId, string treatmentId, ulong bootstrapSeed)
+    private static VariantComparison Compare(ExperimentDefinition definition, List<CellResult> cells, string controlId, string treatmentId, ulong bootstrapSeed, CancellationToken cancellationToken)
     {
         var rules = definition.DecisionRules;
         var novice = Cell(cells, treatmentId, "novice");
         var greedy = Cell(cells, treatmentId, "greedy");
         var primary = PairedStatistics.Bootstrap(Cell(cells, controlId, "novice").Runs, novice.Runs,
-            definition.BootstrapReplicates, bootstrapSeed, definition.TargetCumulativeFailureRates);
+            definition.BootstrapReplicates, bootstrapSeed, definition.TargetCumulativeFailureRates, cancellationToken);
         var checks = new List<GuardrailResult>();
         void Check(string key, double? value, bool passed, FormattableString requirement) =>
             checks.Add(new(key, passed, value, requirement.ToString(CultureInfo.InvariantCulture)));
@@ -118,7 +168,7 @@ public static class ExperimentRunner
             var survivorTurns = PairedStatistics.PairedSurvivorTurns(control.Runs, treatment.Runs);
             var entropyRatio = control.RewardEntropy > 0 ? treatment.RewardEntropy / control.RewardEntropy : null;
             agentComparisons.Add(new AgentComparison(agentId,
-                PairedStatistics.Bootstrap(control.Runs, treatment.Runs, definition.BootstrapReplicates, bootstrapSeed),
+                PairedStatistics.Bootstrap(control.Runs, treatment.Runs, definition.BootstrapReplicates, bootstrapSeed, cancellationToken: cancellationToken),
                 survivorTurns.Count, survivorTurns.Ratio, entropyRatio));
             if (agentId is not ("random" or "novice" or "greedy"))
                 Check($"{agentId}.clear", treatment.ClearRate, treatment.ClearRate >= rules.OtherNonRandomClearRateMinimum, $">= {rules.OtherNonRandomClearRateMinimum}");
