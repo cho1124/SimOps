@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "difficulty-curve-001",
+  "hypothesis": "With the early encounter unchanged, a stage-wise enemy attack ramp brings Novice cumulative failure closer to the registered curve than a uniform attack increase, without a new late-stage cliff or excessive harm to other personas.",
+  "gameVersion": "0.1.0",
+  "controlConfigChecksum": "388792f0b3f1dafe41f787c69894931fc2af1106e3edf098b10ed251bdda710f",
+  "scoreRuleChecksum": "9a2d4ea68678a800b862a3cfbf53691d0cfcbf7363e436bbdcf86f8ab25abbb6",
+  "agentVersion": "1.0.0",
+  "agentIds": ["random", "novice", "aggressive", "defensive", "greedy", "explorer"],
+  "runsPerCell": 1000,
+  "firstSeed": "10000",
+  "bootstrapReplicates": 2000,
+  "bootstrapSeed": "20260827",
+  "variants": [
+    { "id": "control", "role": "control", "attackPercentByStage": [100, 100, 100, 100, 100, 100] },
+    { "id": "uniform", "role": "treatment", "attackPercentByStage": [100, 150, 150, 150, 150, 150] },
+    { "id": "ramped", "role": "treatment", "attackPercentByStage": [100, 120, 140, 160, 180, 200] }
+  ],
+  "primaryMetric": "novice_curve_target_mae.v1",
+  "targetCumulativeFailureRates": [0.0, 0.02, 0.05, 0.10, 0.20, 0.30],
+  "decisionRules": {
+    "minimumMaeImprovement": 0.02,
+    "noviceClearRateMinimum": 0.60,
+    "noviceClearRateMaximum": 0.85,
+    "noviceStage1PassRateMinimum": 0.99,
+    "noviceStage3CumulativeFailureMaximum": 0.10,
+    "noviceAdjacentConditionalFailureJumpMaximum": 0.15,
+    "greedyClearRateMinimum": 0.90,
+    "greedyNoviceClearRateGapMinimum": 0.10,
+    "otherNonRandomClearRateMinimum": 0.60,
+    "pairedSurvivorTurnsRatioMaximum": 1.15,
+    "rewardEntropyRatioMinimum": 0.90,
+    "dominantRewardShareMaximum": 0.50,
+    "maximumTurnReachedRateMaximum": 0.01
+  }
+}
