@@ -3,5 +3,10 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>SimOps.Game.Core</AssemblyName>
     <RootNamespace>SimOps.Game.Core</RootNamespace>
+    <!-- Ticket identity must not change when unrelated dashboard/docs commits change HEAD. -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+    <EnableSourceLink>false</EnableSourceLink>
+    <PathMap>$(MSBuildProjectDirectory)=/_/SimOps.Game.Core</PathMap>
   </PropertyGroup>
 </Project>

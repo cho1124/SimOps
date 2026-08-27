@@ -90,7 +90,7 @@ public static class SubmissionValidator
 {
     public const int MaximumActions = 10_000;
 
-    public static void Validate(RunSubmission submission)
+    public static void Validate(RunSubmission submission, bool requireAgent = true)
     {
         if (submission is null)
         {
@@ -120,7 +120,7 @@ public static class SubmissionValidator
         var knownAgent = AgentFactory.CreateDefinitions().Any(definition =>
             string.Equals(definition.Id, submission.AgentId, StringComparison.Ordinal) &&
             string.Equals(definition.Version, submission.AgentVersion, StringComparison.Ordinal));
-        if (!knownAgent)
+        if (requireAgent && !knownAgent)
         {
             throw new SubmissionValidationException("AGENT_VERSION_UNKNOWN", "The agent definition is not supported.");
         }

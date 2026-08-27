@@ -13,7 +13,8 @@
 | 2. Unity 플레이와 리플레이 | 구현·빌드 완료 | [구현 및 검증 기록](implementation/milestone-02-unity-client.md), Android 실기기 QA 대기 |
 | 3. 합성 플레이어 | 완료 | [구현 및 6,000 Run 기준선](implementation/milestone-03-synthetic-players.md) |
 | 4. 백엔드와 데이터 | 완료 | [수집·검증·lease 복구 기록](implementation/milestone-04-backend-data.md) |
-| 5~8 | 대기 | 앞선 수직 단면 완료 후 순차 진행 |
+| 5. 랭킹 | 구현·통합 검증 완료 | [인간 Ticket·랭킹·Unity 연결](implementation/milestone-05-human-ranking.md), 수동 화면/실기기 QA 대기 |
+| 6~8 | 미구현 | [기준선 기반 대표 실험 재정의](implementation/next-experiment-decision.md) 후 실험 수직 단면 진행 |
 
 ## 마일스톤 0: 설계 기준선
 

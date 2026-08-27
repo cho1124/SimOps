@@ -10,7 +10,7 @@ namespace SimOps.Infrastructure;
 
 public sealed record ClaimedJob(Guid JobId, Guid RunId, Guid LockToken, int Attempts);
 
-public sealed class PostgresRunStore : IAsyncDisposable
+public sealed partial class PostgresRunStore : IAsyncDisposable
 {
     private readonly NpgsqlDataSource _dataSource;
 
@@ -27,21 +27,23 @@ public sealed class PostgresRunStore : IAsyncDisposable
             "SELECT pg_advisory_xact_lock(721042); CREATE SCHEMA IF NOT EXISTS simops; " +
             "CREATE TABLE IF NOT EXISTS simops.schema_migrations (version integer PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now());",
             cancellationToken);
-        await using var versionCommand = new NpgsqlCommand("SELECT count(*) FROM simops.schema_migrations WHERE version = 1", connection, transaction);
-        var applied = (long)(await versionCommand.ExecuteScalarAsync(cancellationToken) ?? 0L);
-        if (applied == 0)
+        foreach (var version in new[] { 1, 2, 3 })
         {
+            await using var versionCommand = new NpgsqlCommand("SELECT count(*) FROM simops.schema_migrations WHERE version = @version", connection, transaction);
+            versionCommand.Parameters.AddWithValue("version", version);
+            if ((long)(await versionCommand.ExecuteScalarAsync(cancellationToken) ?? 0L) != 0) continue;
             var assembly = typeof(PostgresRunStore).Assembly;
-            var resourceName = assembly.GetManifestResourceNames().Single(name => name.EndsWith("001_initial.sql", StringComparison.Ordinal));
+            var resourceName = assembly.GetManifestResourceNames().Single(name => name.Contains($"Migrations.{version:000}_", StringComparison.Ordinal));
             await using var stream = assembly.GetManifestResourceStream(resourceName)
                 ?? throw new InvalidOperationException("Initial schema resource is missing.");
             using var reader = new StreamReader(stream);
             var sql = await reader.ReadToEndAsync(cancellationToken);
             await ExecuteAsync(connection, transaction, sql, cancellationToken);
-            await ExecuteAsync(connection, transaction, "INSERT INTO simops.schema_migrations(version) VALUES (1)", cancellationToken);
+            await ExecuteAsync(connection, transaction, $"INSERT INTO simops.schema_migrations(version) VALUES ({version})", cancellationToken);
         }
 
         await SeedCatalogAsync(connection, transaction, cancellationToken);
+        await SeedSeasonAsync(connection, transaction, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
 
@@ -54,19 +56,29 @@ public sealed class PostgresRunStore : IAsyncDisposable
     public async Task<SubmissionReceipt> SubmitAsync(RunSubmission submission, CancellationToken cancellationToken = default)
     {
         SubmissionValidator.Validate(submission);
-        var requestHash = StableHash.Sha256Hex(JsonSerializer.Serialize(submission, ContractJson.Options));
         await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+        var receipt = await InsertRunAsync(connection, transaction, submission, null, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return receipt;
+    }
+
+    private static async Task<SubmissionReceipt> InsertRunAsync(NpgsqlConnection connection, NpgsqlTransaction transaction,
+        RunSubmission submission, TicketClaims? owner, CancellationToken cancellationToken)
+    {
+        var requestHash = StableHash.Sha256Hex(JsonSerializer.Serialize(submission, ContractJson.Options));
+        var scopedKey = owner is null ? "synthetic:" + submission.IdempotencyKey
+            : $"human:{owner.PlayerId:N}:{submission.IdempotencyKey}";
         await using (var lockCommand = new NpgsqlCommand("SELECT pg_advisory_xact_lock(hashtextextended(@key, 0))", connection, transaction))
         {
-            lockCommand.Parameters.AddWithValue("key", submission.IdempotencyKey);
+            lockCommand.Parameters.AddWithValue("key", scopedKey);
             await lockCommand.ExecuteNonQueryAsync(cancellationToken);
         }
 
         await using (var existingCommand = new NpgsqlCommand(
             "SELECT id, request_hash, status FROM simops.runs WHERE idempotency_key = @key", connection, transaction))
         {
-            existingCommand.Parameters.AddWithValue("key", submission.IdempotencyKey);
+            existingCommand.Parameters.AddWithValue("key", scopedKey);
             await using var reader = await existingCommand.ExecuteReaderAsync(cancellationToken);
             if (await reader.ReadAsync(cancellationToken))
             {
@@ -79,27 +91,31 @@ public sealed class PostgresRunStore : IAsyncDisposable
             }
         }
 
-        var runId = Guid.NewGuid();
+        var runId = owner?.TicketId ?? Guid.NewGuid();
         await using (var insertRun = new NpgsqlCommand(
             """
             INSERT INTO simops.runs
               (id, population, agent_id, agent_version, game_version, config_checksum,
                score_rule_version, score_rule_checksum, base_seed, idempotency_key,
-               request_hash, client_result_hash, action_count, status)
+               request_hash, client_result_hash, action_count, status, player_id, season_id, ticket_id)
             VALUES
-              (@id, 'synthetic', @agent, @agentVersion, @gameVersion, @config,
-               @scoreVersion, @scoreChecksum, @seed, @key, @requestHash, @resultHash, @actionCount, 'submitted')
+              (@id, @population, @agent, @agentVersion, @gameVersion, @config,
+               @scoreVersion, @scoreChecksum, @seed, @key, @requestHash, @resultHash, @actionCount, 'submitted', @player, @season, @ticket)
             """, connection, transaction))
         {
             insertRun.Parameters.AddWithValue("id", runId);
-            insertRun.Parameters.AddWithValue("agent", submission.AgentId);
-            insertRun.Parameters.AddWithValue("agentVersion", submission.AgentVersion);
+            insertRun.Parameters.AddWithValue("population", owner is null ? "synthetic" : "human");
+            insertRun.Parameters.AddWithValue("agent", NpgsqlDbType.Text, owner is null ? submission.AgentId : DBNull.Value);
+            insertRun.Parameters.AddWithValue("agentVersion", NpgsqlDbType.Text, owner is null ? submission.AgentVersion : DBNull.Value);
+            insertRun.Parameters.AddWithValue("player", NpgsqlDbType.Uuid, (object?)owner?.PlayerId ?? DBNull.Value);
+            insertRun.Parameters.AddWithValue("season", NpgsqlDbType.Uuid, (object?)owner?.SeasonId ?? DBNull.Value);
+            insertRun.Parameters.AddWithValue("ticket", NpgsqlDbType.Uuid, (object?)owner?.TicketId ?? DBNull.Value);
             insertRun.Parameters.AddWithValue("gameVersion", submission.GameVersion);
             insertRun.Parameters.AddWithValue("config", submission.ConfigChecksum);
             insertRun.Parameters.AddWithValue("scoreVersion", submission.ScoreRuleVersion);
             insertRun.Parameters.AddWithValue("scoreChecksum", submission.ScoreRuleChecksum);
             insertRun.Parameters.AddWithValue("seed", decimal.Parse(submission.BaseSeed, CultureInfo.InvariantCulture));
-            insertRun.Parameters.AddWithValue("key", submission.IdempotencyKey);
+            insertRun.Parameters.AddWithValue("key", scopedKey);
             insertRun.Parameters.AddWithValue("requestHash", requestHash);
             insertRun.Parameters.AddWithValue("resultHash", submission.ClientResultHash);
             insertRun.Parameters.AddWithValue("actionCount", submission.Actions.Count);
@@ -130,7 +146,6 @@ public sealed class PostgresRunStore : IAsyncDisposable
             await jobCommand.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        await transaction.CommitAsync(cancellationToken);
         return new SubmissionReceipt(runId, "submitted", false);
     }
 
@@ -204,7 +219,7 @@ public sealed class PostgresRunStore : IAsyncDisposable
         RunSubmission submission;
         await using (var command = new NpgsqlCommand(
             """
-            SELECT idempotency_key, agent_id, agent_version, game_version, config_checksum,
+            SELECT idempotency_key, coalesce(agent_id, ''), coalesce(agent_version, ''), game_version, config_checksum,
                    score_rule_version, score_rule_checksum, base_seed::text, client_result_hash
             FROM simops.runs WHERE id = @id
             """, connection))
@@ -217,7 +232,7 @@ public sealed class PostgresRunStore : IAsyncDisposable
             }
 
             submission = new RunSubmission(
-                reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),
+                "replay", reader.GetString(1), reader.GetString(2), reader.GetString(3),
                 reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7),
                 reader.GetString(8), Array.Empty<SubmittedAction>());
         }
@@ -301,6 +316,8 @@ public sealed class PostgresRunStore : IAsyncDisposable
                 await batch.ExecuteNonQueryAsync(cancellationToken);
             }
         }
+
+        if (output.Verified) await UpdateLeaderboardAsync(connection, transaction, job.RunId, cancellationToken);
 
         await using (var complete = new NpgsqlCommand(
             "UPDATE simops.jobs SET status = 'succeeded', completed_at = now(), locked_until = NULL, lock_token = NULL WHERE id = @id AND lock_token = @token", connection, transaction))

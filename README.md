@@ -10,8 +10,8 @@ SimOps는 Unity 게임을 합성 플레이어가 반복 플레이하고, 그 결
 
 ## 현재 상태
 
-- 단계: 마일스톤 1·3·4 완료, 2 구현·빌드 완료(실기기 QA 대기), 마일스톤 5 준비
-- 구현: 결정론적 Game Core, Unity Windows·Android Client, 합성 플레이어 6종, Headless Simulation, API·Worker·PostgreSQL 재실행 검증
+- 단계: 마일스톤 1·3·4 완료, 2·5 구현·빌드·통합 검증 완료(수동 화면/실기기 QA 대기), 마일스톤 6~8 미구현
+- 구현: 결정론적 Game Core, Unity Windows·Android Client, 합성 플레이어 6종, API·Worker·PostgreSQL 재실행 검증, 익명 Player·Ticket·시즌 랭킹
 - 확정된 게임 형식: 6번의 짧은 전투와 전투 사이 보상 선택이 있는 턴제 미니 로그라이크
 - 확정된 클라이언트 범위: 하나의 Unity 프로젝트에서 Windows와 Android 지원
 - 비동기 경쟁 요소: 시즌·버전 기반 랭킹
@@ -43,9 +43,13 @@ powershell -ExecutionPolicy Bypass -File scripts/Run-Milestone2.ps1 -Target All
 dotnet run --project src/SimOps.Simulation.Cli -c Release -- --runs 1000 --json artifacts/simulation/persona-baseline.json
 ```
 
-## 설계 문서 읽는 순서
-
 로컬 백엔드 통합 검증은 Docker Desktop 실행 후 `powershell -File scripts/Run-Milestone4.ps1`로 재현한다. [백엔드 구현 기록](docs/implementation/milestone-04-backend-data.md)에 API 계약·개발용 설정·검증 범위를 정리했다.
+
+Unity 빌드와 실제 서버 랭킹까지 전체 검증은 `powershell -File scripts/Run-Milestone5.ps1`로 실행한다. 최신 빌드가 있으면 `-SkipClientBuild`를 사용할 수 있다. [랭킹 구현 기록](docs/implementation/milestone-05-human-ranking.md)에 직접 실행 방법과 남은 QA를 정리했다.
+
+기준선에서 최초 실험 가정이 성립하지 않아, 실험을 Ready로 고정하기 전 [대표 실험 재정의 메모](docs/implementation/next-experiment-decision.md)를 확인한다.
+
+## 설계 문서 읽는 순서
 
 1. [프로젝트 로드맵](docs/00-roadmap.md)
 2. [프로젝트 정의](docs/01-product-brief.md)

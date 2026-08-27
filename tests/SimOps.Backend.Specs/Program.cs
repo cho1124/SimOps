@@ -9,11 +9,13 @@ using SimOps.Game.Core;
 using SimOps.Infrastructure;
 
 var mode = args.Length > 0 ? args[0] : "--http";
+if (mode is "--ranking" or "--ranking-db") return await RankingSpecs.RunAsync(mode == "--ranking-db");
 var tests = mode == "--lease"
     ? new (string Name, Func<Task> Execute)[]
     {
         ("VERIFY-002 expired lease is reclaimed and stale completion is fenced", LeaseRecoveryAsync),
         ("JOB-001 exhausted crash attempts become terminal failure", ExhaustedLeaseAsync),
+        ("DB-001 fresh database applies all migrations and catalog seeds", FreshDatabaseAsync),
     }
     : new (string Name, Func<Task> Execute)[]
     {
@@ -254,6 +256,35 @@ static async Task ExpireLeaseAsync(ClaimedJob job, bool exhaustAttempts)
     command.Parameters.AddWithValue("id", job.JobId);
     command.Parameters.AddWithValue("token", job.LockToken);
     Equal(1, await command.ExecuteNonQueryAsync(), "Lease fixture was not updated.");
+}
+
+static async Task FreshDatabaseAsync()
+{
+    var settings = new NpgsqlConnectionStringBuilder(ConnectionString());
+    if (settings.Host != "127.0.0.1" || settings.Port != 54329)
+        throw new InvalidOperationException("Fresh database specs are limited to the project's local PostgreSQL instance.");
+    var databaseName = "simops_spec_" + Guid.NewGuid().ToString("N");
+    await using var admin = new NpgsqlConnection(settings.ConnectionString);
+    await admin.OpenAsync();
+    await using (var create = new NpgsqlCommand($"CREATE DATABASE {databaseName}", admin))
+        await create.ExecuteNonQueryAsync();
+    try
+    {
+        settings.Database = databaseName;
+        await using var store = new PostgresRunStore(settings.ConnectionString);
+        await store.InitializeAsync();
+        await store.InitializeAsync();
+        True(await store.PingAsync(), "Fresh database is unavailable.");
+        Equal(PostgresRunStore.BaselineSeasonId, (await store.GetActiveSeasonAsync())?.SeasonId, "Fresh baseline season was not seeded.");
+        var player = await store.RegisterPlayerAsync(new RegisterPlayerRequest("Fresh schema"));
+        Equal(player.PlayerId, await store.AuthenticatePlayerAsync(player.Credential), "Fresh schema identity failed.");
+    }
+    finally
+    {
+        // Only this test's just-created UUID database on the fixed local instance is removed.
+        await using var drop = new NpgsqlCommand($"DROP DATABASE {databaseName}", admin);
+        await drop.ExecuteNonQueryAsync();
+    }
 }
 
 static void True(bool condition, string message)

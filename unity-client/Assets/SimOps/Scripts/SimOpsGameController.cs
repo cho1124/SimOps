@@ -34,23 +34,44 @@ namespace SimOps.Unity
         private Rect _lastSafeArea;
         private Vector2Int _lastScreenSize;
         private bool _smokeMode;
+        private bool _onlineSmokeMode;
+        private SimOpsOnlineClient _online;
+        private OnlineTicketData _activeTicket;
+        private Label _onlineLabel;
         private string _message = string.Empty;
 
         private void Awake()
         {
             Application.targetFrameRate = 60;
-            _smokeMode = HasCommandLineArgument("--simops-smoke");
+            Application.runInBackground = true;
+            if (Camera.main == null)
+            {
+                var cameraObject = new GameObject("SimOps UI Camera");
+                cameraObject.tag = "MainCamera";
+                var camera = cameraObject.AddComponent<Camera>();
+                camera.clearFlags = CameraClearFlags.SolidColor;
+                camera.backgroundColor = BackgroundColor;
+                camera.cullingMask = 0;
+            }
+            _onlineSmokeMode = HasCommandLineArgument("--simops-online-smoke");
+            _smokeMode = _onlineSmokeMode || HasCommandLineArgument("--simops-smoke");
+            _online = gameObject.AddComponent<SimOpsOnlineClient>();
             _config = GameConfig.CreateBaseline();
             _scoreRule = ScoreRule.CreateBaseline();
             _replayStore = new ReplayStore();
             BuildInterface();
+            _online.StatusChanged += text => _onlineLabel.text = text;
 
-            if (!TryResume())
+            if (_smokeMode || !TryResume())
             {
                 StartNewRun(DefaultSeed);
             }
 
-            if (_smokeMode)
+            if (_onlineSmokeMode)
+            {
+                StartCoroutine(RunOnlineSmokeTest());
+            }
+            else if (_smokeMode)
             {
                 StartCoroutine(RunSmokeTest());
             }
@@ -109,6 +130,7 @@ namespace SimOps.Unity
 
         private void StartNewRun(ulong seed)
         {
+            _activeTicket = null;
             _context = CreateContext(seed);
             _simulation = new GameSimulation(_config, _scoreRule);
             _observation = _simulation.Reset(_context);
@@ -148,6 +170,7 @@ namespace SimOps.Unity
                 _observation = step.Observation;
             }
 
+            _activeTicket = replay.onlineTicket;
             _message = $"Resumed {_simulation.ActionLog.Count.ToString(CultureInfo.InvariantCulture)} saved actions";
             RefreshInterface();
             return true;
@@ -219,7 +242,7 @@ namespace SimOps.Unity
 
             try
             {
-                _replayStore.Save(_context, _simulation.ActionLog);
+                _replayStore.Save(_context, _simulation.ActionLog, _activeTicket);
             }
             catch (Exception exception)
             {
@@ -332,7 +355,9 @@ namespace SimOps.Unity
 
         private void BuildInterface()
         {
-            var panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
+            var panelAsset = Resources.Load<PanelSettings>("SimOpsPanelSettings");
+            if (panelAsset == null) throw new InvalidOperationException("Build the runtime PanelSettings asset before playing.");
+            var panelSettings = Instantiate(panelAsset);
             panelSettings.name = "SimOps Runtime Panel";
             panelSettings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
             panelSettings.referenceResolution = new Vector2Int(1600, 900);
@@ -344,6 +369,8 @@ namespace SimOps.Unity
             var root = document.rootVisualElement;
             root.name = "simops-root";
             root.style.flexGrow = 1f;
+            root.style.width = Length.Percent(100);
+            root.style.height = Length.Percent(100);
             root.style.backgroundColor = BackgroundColor;
 
             _safeAreaRoot = new VisualElement { name = "safe-area" };
@@ -382,14 +409,85 @@ namespace SimOps.Unity
 
             _historyLabel = CreateLabel(string.Empty, 18, FontStyle.Normal);
             _historyLabel.style.flexGrow = 1f;
-            _historyLabel.style.minHeight = 120f;
+            _historyLabel.style.minHeight = 80f;
             _safeAreaRoot.Add(_historyLabel);
 
             var footer = CreateRow(64f);
             footer.Add(CreateButton("REPLAY CURRENT LOG", ReplayCurrentLog, 300f));
             footer.Add(CreateButton("NEW SEED 42 RUN", () => StartNewRun(DefaultSeed), 300f));
             _safeAreaRoot.Add(footer);
+            var onlineRow = CreateRow(56f);
+            onlineRow.Add(CreateButton("START RANKED RUN", () => StartCoroutine(_online.Begin(AcceptTicket)), 250f));
+            onlineRow.Add(CreateButton("SUBMIT RESULT", SubmitOnline, 250f));
+            onlineRow.Add(CreateButton("LEADERBOARD", () => StartCoroutine(_online.Leaderboard(_activeTicket?.context?.seasonId)), 250f));
+            _safeAreaRoot.Add(onlineRow);
+            _onlineLabel = CreateLabel("Offline practice. Ranked mode requires the local API and Worker.", 16, FontStyle.Normal);
+            _onlineLabel.style.height = 104f;
+            _safeAreaRoot.Add(_onlineLabel);
             ApplySafeAreaIfNeeded(true);
+        }
+
+        private void AcceptTicket(OnlineTicketData ticket)
+        {
+            var context = ticket.context;
+            if (context == null || context.gameVersion != _config.GameVersion || context.configChecksum != _config.Checksum ||
+                context.scoreRuleVersion != _scoreRule.Version || context.scoreRuleChecksum != _scoreRule.Checksum ||
+                context.gameCoreChecksum != _online.CoreChecksum || !ulong.TryParse(context.baseSeed, out var seed))
+            {
+                _onlineLabel.text = "Ticket requires an unsupported game or config version.";
+                return;
+            }
+            StartNewRun(seed);
+            _activeTicket = ticket;
+            SaveProgress();
+        }
+
+        private void SubmitOnline()
+        {
+            if (_activeTicket == null || _observation.Phase != RunPhase.Terminal)
+            {
+                _onlineLabel.text = "Finish a server-issued ranked run before submitting.";
+                return;
+            }
+            StartCoroutine(_online.Submit(_activeTicket, _simulation.ActionLog, _simulation.GetCanonicalResult().ResultHash));
+        }
+
+        private IEnumerator RunOnlineSmokeTest()
+        {
+            yield return null;
+            yield return _online.Begin(AcceptTicket);
+            if (_activeTicket == null)
+            {
+                Debug.LogError("SIMOPS_ONLINE_SMOKE_FAIL ticket: " + _online.LastError);
+                Application.Quit(1);
+                yield break;
+            }
+            var count = 0;
+            while (_observation.Phase != RunPhase.Terminal && count++ < 10000)
+            {
+                if (_observation.Phase == RunPhase.RewardChoice) Perform(GameActionType.ChooseReward, _observation.OfferedRewardIds[0]);
+                else if (IsValid(GameActionType.Technique)) Perform(GameActionType.Technique);
+                else if (IsValid(GameActionType.Strike)) Perform(GameActionType.Strike);
+                else Perform(GameActionType.EndTurn);
+            }
+            var verified = false;
+            yield return _online.Submit(_activeTicket, _simulation.ActionLog, _simulation.GetCanonicalResult().ResultHash, result => verified = result);
+            OnlineRankingData ranking = null;
+            yield return _online.Leaderboard(_activeTicket.context.seasonId, result => ranking = result);
+            if (!verified || ranking?.currentPlayer == null || ranking.currentPlayer.runId != _activeTicket.runId)
+            {
+                Debug.LogError("SIMOPS_ONLINE_SMOKE_FAIL verification or ranking: " + _online.LastError);
+                Application.Quit(1);
+                yield break;
+            }
+            Debug.Log("SIMOPS_ONLINE_SMOKE_PASS run=" + _activeTicket.runId + " rank=" + ranking.currentPlayer.rank);
+            yield return null;
+            yield return null;
+            Debug.Log("SIMOPS_UI_BOUNDS " + _safeAreaRoot.worldBound + " panel=" + (_safeAreaRoot.panel != null));
+            var capturePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Application.dataPath), "SimOps-online-smoke.png");
+            ScreenCapture.CaptureScreenshot(capturePath);
+            yield return new WaitForSecondsRealtime(0.5f);
+            Application.Quit(0);
         }
 
         private Button AddActionButton(VisualElement parent, GameActionType actionType, string label)

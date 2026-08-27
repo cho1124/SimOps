@@ -8,7 +8,7 @@ public sealed class ReplayVerifier
 {
     public VerificationOutput Verify(RunSubmission submission)
     {
-        SubmissionValidator.Validate(submission);
+        SubmissionValidator.Validate(submission, requireAgent: false);
         var config = GameConfig.CreateBaseline();
         var scoreRule = ScoreRule.CreateBaseline();
         var context = new RunContext(

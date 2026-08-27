@@ -15,7 +15,8 @@ namespace SimOps.Unity
 
         public void Save(
             RunContext context,
-            IReadOnlyList<GameAction> actions)
+            IReadOnlyList<GameAction> actions,
+            OnlineTicketData ticket = null)
         {
             var data = new ReplayData
             {
@@ -25,6 +26,7 @@ namespace SimOps.Unity
                 scoreRuleChecksum = context.ScoreRuleChecksum,
                 baseSeed = context.BaseSeed.ToString(CultureInfo.InvariantCulture),
                 actions = new List<ReplayActionData>(actions.Count),
+                onlineTicket = ticket,
             };
 
             for (var index = 0; index < actions.Count; index++)
@@ -74,6 +76,7 @@ namespace SimOps.Unity
         public string scoreRuleChecksum;
         public string baseSeed;
         public List<ReplayActionData> actions;
+        public OnlineTicketData onlineTicket;
     }
 
     [Serializable]

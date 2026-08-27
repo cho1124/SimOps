@@ -7,6 +7,7 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 namespace SimOps.Unity.Editor
 {
@@ -117,20 +118,38 @@ namespace SimOps.Unity.Editor
 
         private static void ApplyPlayerSettings()
         {
+            EnsurePanelSettings();
             PlayerSettings.companyName = "SimOps Lab";
             PlayerSettings.productName = "SimOps Arena";
             PlayerSettings.bundleVersion = "0.1.0";
+            PlayerSettings.insecureHttpOption = InsecureHttpOption.DevelopmentOnly;
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, "com.simops.arena");
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.simops.arena");
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
             PlayerSettings.resizableWindow = true;
+            PlayerSettings.runInBackground = true;
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.allowedAutorotateToLandscapeLeft = true;
             PlayerSettings.allowedAutorotateToLandscapeRight = true;
+        }
+
+        private static void EnsurePanelSettings()
+        {
+            const string path = "Assets/SimOps/Resources/SimOpsPanelSettings.asset";
+            var panel = AssetDatabase.LoadAssetAtPath<PanelSettings>(path);
+            if (panel == null)
+            {
+                panel = ScriptableObject.CreateInstance<PanelSettings>();
+                AssetDatabase.CreateAsset(panel, path);
+            }
+            panel.themeStyleSheet = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>("Assets/SimOps/Resources/SimOpsTheme.tss");
+            if (panel.themeStyleSheet == null) throw new InvalidOperationException("Runtime theme asset is missing.");
+            EditorUtility.SetDirty(panel);
+            AssetDatabase.SaveAssets();
         }
 
         private static void Build(BuildPlayerOptions options, string platform)

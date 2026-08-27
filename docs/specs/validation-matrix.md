@@ -66,9 +66,12 @@
 | METRIC-001 | 완료 | 0분모 null·reason 및 Agent Version 혼합 거부 |
 | API-001·002·003 | 완료 | readiness/OpenAPI·운영자 인증·warm 제출 지연 검증 |
 | EVENT-001 | 완료 | Run별 Encounter 시작·종료 수와 Stage Summary 일치 |
-| VERIFY-001 | 합성 Run 완료 | 8건 동시 제출 하나의 Run, 다른 payload 충돌; 인간 Ticket은 M5 |
+| VERIFY-001 | 완료 | 합성 8건·인간 6건 동시 제출 하나의 Run, 다른 payload 충돌 |
 | VERIFY-002 / JOB-001 | 완료 | 만료 lease 회수·stale token 차단·중복 완료·최대 재시도 실패 |
 | VERIFY-003·004·005 | 완료 | Hash 변조·불연속 sequence·미제시 보상 거부 |
+| PLAYER-001 / TICKET-001~004 | 완료 | 익명 hash·소유권·서명·버전·만료·재사용·멱등성 검증 |
+| RANK-001~004 / SEASON-002 | 완료 | 최고점·동점·동시 완료·합성/거부 제외·종료 시즌 동결·시즌 불변성 |
+| DB-001 | 완료 | 새 임시 DB에서 전체 migration과 catalog를 두 번 초기화하고 익명 인증 검증 통과 |
 
 실행 명령과 고정값은 [마일스톤 1 구현 기록](../implementation/milestone-01-game-core.md)에 있다.
 
@@ -114,8 +117,8 @@ Game Version마다 최소 다음 Fixture를 유지한다.
 
 | 대상 | Build | 설치·실행 | 입력 | UI·Safe Area | Pause·Resume | Golden Hash | API·랭킹 |
 |---|---|---|---|---|---|---|---|
-| Windows | Development Build 성공 | Player smoke 성공 | 코드 완료·수동 QA 대기 | 반응형 가로 UI·수동 QA 대기 | 저장 hook 완료·수동 QA 대기 | Editor Host 일치 | 통합 랭킹 대기 |
-| Android 실기기 | ARM64 IL2CPP APK 성공 | 기기 미연결로 대기 | 터치 UI 코드 완료·실기기 대기 | Safe Area 코드 완료·실기기 대기 | 저장 hook 완료·실기기 대기 | APK 실행 후 측정 대기 | 통합 랭킹 대기 |
+| Windows | Development Build 성공 | Player·온라인 smoke 성공 | 코드 완료·수동 QA 대기 | 테마·크기 적용, 정상 캡처 미확보·수동 QA 대기 | 저장 hook 완료·수동 QA 대기 | Editor Host 일치 | 실제 API·Worker 검증 후 내 순위 조회 성공 |
+| Android 실기기 | ARM64 IL2CPP APK 성공 | 기기 미연결로 대기 | 터치 UI 코드 완료·실기기 대기 | Safe Area 코드 완료·실기기 대기 | 저장 hook 완료·실기기 대기 | APK 실행 후 측정 대기 | 공통 네트워크 코드·빌드 완료, 실기기 대기 |
 
 ## 성능 측정 규칙
 
