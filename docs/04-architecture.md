@@ -1,8 +1,8 @@
 # 아키텍처 설계
 
-상태: 검토 중
+상태: 확정
 
-이 문서는 비교를 위한 기준 제안이다. 기술 선택은 [기술 의사결정 워크숍](09-decision-workshop.md)을 거쳐 ADR이 승인된 뒤 확정한다.
+이 문서는 [기술 의사결정 워크숍](09-decision-workshop.md)과 승인된 [ADR](decisions/README.md)을 반영한 구현 기준이다.
 
 ## 1. 설계 목표
 
@@ -34,7 +34,7 @@ MVP는 `모듈형 모놀리스 API + 별도 Worker + 단일 PostgreSQL`로 구�
 ```mermaid
 flowchart LR
     U[Unity Client] -->|REST/JSON| A[ASP.NET Core API]
-    D[Next.js Dashboard] -->|REST/JSON| A
+    D[React + Vite Dashboard] -->|REST/JSON| A
 
     A --> P[(PostgreSQL)]
     W[.NET Worker] --> P
@@ -59,7 +59,7 @@ flowchart LR
 | Backend API | ASP.NET Core on .NET 10 LTS | C# 도메인 공유, 장기 지원, 웹·Worker 생태계 |
 | Background Worker | .NET 10 Worker Service | 시뮬레이션·검증·집계 작업 분리 |
 | Database | PostgreSQL 18.x | 관계형 제약, JSONB, 트랜잭션, 분석 SQL |
-| Dashboard | Next.js 16 Active LTS / TypeScript | 운영 UI와 새로운 웹 영역 확장 |
+| Dashboard | React + Vite SPA / TypeScript | 별도 API와 책임이 분명한 운영 UI |
 | Local Runtime | Docker Compose | API, Worker, Dashboard, DB 재현 |
 | Observability | OpenTelemetry + structured logging | 요청·Job·실험의 상관 추적 |
 | AI | Provider-neutral adapter | 특정 모델 종속 최소화 |
@@ -70,7 +70,7 @@ flowchart LR
 - Unity의 기본 API 호환 수준은 .NET Standard 2.1이다: [Unity .NET profile support](https://docs.unity3d.com/kr/6000.0/Manual/dotnet-profile-support.html)
 - .NET 10은 2028년 11월까지 지원되는 Active LTS다: [.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy)
 - PostgreSQL 18은 2030년 11월까지 지원된다: [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/)
-- Next.js 배포는 Active 또는 Maintenance LTS 사용이 권장된다: [Next.js support policy](https://nextjs.org/support-policy)
+- Vite는 정적 SPA build와 개발 서버를 제공한다: [Vite guide](https://vite.dev/guide/)
 
 ## 5. 저장소 구조
 
@@ -78,7 +78,7 @@ flowchart LR
 /
 ├─ apps/
 │  ├─ unity-client/                 # Unity 프로젝트
-│  └─ dashboard/                    # Next.js 운영 UI
+│  └─ dashboard/                    # React + Vite 운영 SPA
 ├─ src/
 │  ├─ SimOps.Game.Core/             # 순수 결정론적 규칙
 │  ├─ SimOps.Game.Contracts/        # 공유 DTO와 버전 계약
@@ -171,7 +171,7 @@ flowchart LR
 - PC와 모바일은 플랫폼별 Build Profile과 얇은 Adapter만 분리한다.
 - 키보드·마우스와 터치는 같은 `GameAction`으로 변환한다.
 - Safe Area, 화면비, DPI, pause·resume, 로컬 저장 경로는 Game Core 밖에서 처리한다.
-- 정확한 대상 OS와 배포 채널은 ADR-0014에서 확정한다.
+- MVP 대상은 Windows·Android, 화면은 가로 고정이며 itch.io로 배포한다.
 
 ## 8. Backend API 모듈
 
@@ -447,13 +447,15 @@ Unity Editor와 대상 PC·모바일 Development Build는 로컬 API에 연결�
 
 ### 첫 공개 배포
 
-- Game Client: ADR-0014에서 선택한 PC·모바일 채널
-- Dashboard: Node 런타임 또는 지원 플랫폼
-- API와 Worker: 컨테이너
-- DB: 관리형 PostgreSQL 권장
+- Game Client: itch.io의 Windows ZIP·Android APK
+- Dashboard: GitHub Pages 정적 배포
+- API: Render Free Web Service의 Docker 배포
+- Worker: 인증된 wake·health endpoint만 노출하는 별도 Render Free Web Service
+- DB: Neon Free PostgreSQL
+- CI: 공개 저장소의 표준 GitHub Actions runner
 - HTTPS termination과 비밀 관리
 
-특정 클라우드 공급자는 구현 단계에서 비용과 배포 경험을 비교해 ADR로 선택한다.
+월 비용 0원과 결제 카드 미등록을 고정 제약으로 둔다. Cold Start와 제한된 uptime을 허용하고, 무료 정책은 실제 배포 직전에 다시 확인한다. 상세 제약은 [ADR-0013](decisions/0013-deployment-and-ci.md)을 따른다.
 
 ## 17. 성능 목표 초안
 

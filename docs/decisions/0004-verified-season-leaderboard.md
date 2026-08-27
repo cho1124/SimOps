@@ -1,6 +1,10 @@
 # ADR-0004: 재실행 검증과 시즌별 단일 설정 랭킹
 
-상태: 제안
+상태: 승인
+
+결정일: 2026-08-27
+
+연결 워크숍: [Workshop-0007](../workshops/0007-auth-and-run-verification.md)
 
 ## 맥락
 

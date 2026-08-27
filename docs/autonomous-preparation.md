@@ -15,9 +15,9 @@
 - 전체 시스템 기술 선택지 Workshop 0001~0013
 - PC·모바일 공통 계약과 플랫폼 검증 기준
 
-## 의도적으로 진행하지 않은 작업
+## 결정 전 보류했던 작업
 
-다음 작업은 프로젝트 소유자의 선택을 선행하므로 자동으로 확정하거나 구현하지 않았다.
+다음 작업은 프로젝트 소유자의 선택을 선행하므로 준비 단계에서는 구현하지 않았다.
 
 - Backend·Dashboard 프로젝트 생성
 - Game Core 배포 형식 결정
@@ -29,22 +29,26 @@
 - 관측성 Backend 선택
 - Hosting과 비용 발생 배포
 
+## 기술 결정 완료
+
+2026-08-27에 Workshop 0001~0013의 선택과 반례 검토를 완료하고 ADR 0001~0014를 승인했다.
+
 ## 재개 위치
 
-1. [Workshop-0001: 전체 배포 단위](workshops/0001-deployment-unit.md)의 프로젝트 소유자 답변 작성
-2. Codex와 반례·Spike 검토
-3. ADR-0002 승인 또는 변경
-4. Workshop-0002부터 순서대로 반복
+1. [구현 계획](07-implementation-plan.md)의 마일스톤 1 시작
+2. Game Core DLL과 결정론 Test Host 생성
+3. 동일 입력의 Result Hash Golden Test 작성
+4. Windows·Android·서버 환경의 교차 검증 준비
 
 ## 구현 시작 조건
 
-최소 다음 Workshop이 승인되면 첫 Game Core Spike를 시작할 수 있다.
+첫 Game Core Spike의 선행 Workshop은 모두 승인됐다.
 
 - 0001 전체 배포 단위
 - 0002 Game Core 공유 방식
 - 0003 Backend 플랫폼
 
-다음이 승인되면 첫 Backend 수직 단면을 시작할 수 있다.
+첫 Backend 수직 단면의 선행 Workshop도 모두 승인됐다.
 
 - 0004 영속 저장소
 - 0005 비동기 Job

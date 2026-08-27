@@ -1,6 +1,6 @@
 # Workshop-0013: PC·모바일 플랫폼 범위
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0014](../decisions/0014-client-platform-coverage.md)
 
@@ -65,6 +65,15 @@ MVP는 A로 멀티플랫폼 구조와 검증을 먼저 완성하고, LiveOps 폐
 - 입력 Adapter 밖의 Game Core 플랫폼 분기 0
 - background·resume 후 누락·중복 Action 0
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: A, Windows + Android
+- 화면: 가로 고정
+- 배포: itch.io Windows ZIP·Android APK, GitHub Releases 선택적 mirror
+- 검증: Android 실기기 최소 1대와 Windows·Android 교차 Golden Test
+- 랭킹: Windows·Android 통합
+- 익명 계정: 기기 간 이전을 MVP에서 지원하지 않음
+- 순서: Windows 수직 단면 완성 후 Android Adapter·Build 추가
+- 확장: iOS·macOS는 MVP 이후 실제 요구와 build 환경이 생길 때 검토
+
+최종 내용은 [ADR-0014](../decisions/0014-client-platform-coverage.md)에 기록했다.

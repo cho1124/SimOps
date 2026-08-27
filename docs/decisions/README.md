@@ -50,24 +50,26 @@
 어떤 조건에서 이 결정을 다시 검토하는가?
 ```
 
-## 예정된 ADR
+## 승인된 ADR
 
-- [ADR-0001: 결정론적 Game Core 공유](0001-shared-deterministic-game-core.md)
-- [ADR-0002: 전체 배포 단위](0002-modular-monolith-stack.md)
-- [ADR-0003: PostgreSQL 기반 내구성 Job](0003-postgresql-durable-jobs.md)
-- [ADR-0004: 재실행 검증과 시즌별 단일 설정 랭킹](0004-verified-season-leaderboard.md)
-- [ADR-0005: Backend 플랫폼](0005-backend-platform.md)
-- [ADR-0006: 영속 저장소](0006-persistence-platform.md)
-- [ADR-0007: API 스타일](0007-api-style.md)
-- [ADR-0008: 사용자 식별과 인간 Run 검증](0008-identity-and-run-verification.md)
-- [ADR-0009: 분석·집계 방식](0009-analytics-strategy.md)
-- [ADR-0010: 운영 Dashboard 플랫폼](0010-dashboard-platform.md)
-- [ADR-0011: AI 분석 통합](0011-ai-analysis-integration.md)
-- [ADR-0012: 관측성](0012-observability-stack.md)
-- [ADR-0013: 배포·호스팅과 CI/CD](0013-deployment-and-ci.md)
-- [ADR-0014: PC·모바일 플랫폼 범위](0014-client-platform-coverage.md)
+| ADR | 승인 결정 |
+|---|---|
+| [0001](0001-shared-deterministic-game-core.md) | .NET Standard 2.1 결정론적 Game Core DLL 공유 |
+| [0002](0002-modular-monolith-stack.md) | 모듈형 모놀리스 API + 별도 Worker |
+| [0003](0003-postgresql-durable-jobs.md) | PostgreSQL 기반 내구성 Job |
+| [0004](0004-verified-season-leaderboard.md) | 서버 재실행 검증 + 시즌별 단일 설정 랭킹 |
+| [0005](0005-backend-platform.md) | ASP.NET Core API + .NET Worker Service |
+| [0006](0006-persistence-platform.md) | PostgreSQL 단일 저장소 |
+| [0007](0007-api-style.md) | REST/JSON + OpenAPI |
+| [0008](0008-identity-and-run-verification.md) | 익명 Credential + Signed Ticket + 전체 재실행 |
+| [0009](0009-analytics-strategy.md) | PostgreSQL 원본 + Application 집계·Snapshot |
+| [0010](0010-dashboard-platform.md) | React + Vite SPA / TypeScript |
+| [0011](0011-ai-analysis-integration.md) | Worker 내부 Provider-neutral AI Adapter |
+| [0012](0012-observability-stack.md) | OpenTelemetry + 교체 가능한 Backend |
+| [0013](0013-deployment-and-ci.md) | 카드 없는 월 0원 PaaS·Managed PostgreSQL·정적 Hosting |
+| [0014](0014-client-platform-coverage.md) | Windows + Android, 가로, itch.io, 통합 랭킹 |
 
-다음 후보:
+## 다음 후보
 
 - 이벤트 로그 보존 정책의 구현 세부사항
 - Game Config canonical serialization과 checksum

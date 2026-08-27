@@ -1,6 +1,6 @@
 # Workshop-0012: 배포·호스팅과 CI/CD
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0013](../decisions/0013-deployment-and-ci.md)
 
@@ -64,13 +64,13 @@ format/lint
 → manual production approval
 ```
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-추가 입력:
+- 선택: A, Container PaaS + Managed PostgreSQL의 무료 구성
+- 고정 제약: 월 비용 0원, 결제 카드 등록 없음
+- 허용: Cold Start, 제한된 uptime과 무료 tier 한도
+- 기준선: GitHub Pages Dashboard, Render Free API·Worker, Neon Free PostgreSQL, GitHub Actions CI, itch.io game build
+- 감수: Render Worker를 Web Service 형태로 깨우는 타협과 무료 정책 재검증이 필요하다.
+- 재검토: 무료 정책·카드 요구 변경, 핵심 데모 불안정 또는 용량·실행 한도 초과 시 예산부터 다시 결정한다.
 
-- 월 허용 비용
-- 항상 켜져 있어야 하는지
-- 선호 또는 학습할 Cloud
-- PC·모바일 빌드의 공개 배포 채널과 서명 자동화 범위
-
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 함께 사용한다.
+최종 내용은 [ADR-0013](../decisions/0013-deployment-and-ci.md)에 기록했다.

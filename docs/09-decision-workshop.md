@@ -138,21 +138,21 @@ flowchart TD
     W13 --> W12
 ```
 
-## 진행 중인 워크숍
+## 완료된 워크숍
 
-- [Workshop-0001: 전체 배포 단위](workshops/0001-deployment-unit.md) — 사용자 결정 대기
-- [Workshop-0002: Game Core 공유 방식](workshops/0002-game-core-distribution.md) — 사용자 결정 대기
-- [Workshop-0003: Backend 플랫폼](workshops/0003-backend-platform.md) — 사용자 결정 대기
-- [Workshop-0004: 영속 저장소](workshops/0004-persistence-platform.md) — 사용자 결정 대기
-- [Workshop-0005: 비동기 Job 플랫폼](workshops/0005-async-job-platform.md) — 사용자 결정 대기
-- [Workshop-0006: API 스타일](workshops/0006-api-style.md) — 사용자 결정 대기
-- [Workshop-0007: 인증과 인간 Run 검증](workshops/0007-auth-and-run-verification.md) — 사용자 결정 대기
-- [Workshop-0008: 분석·집계 방식](workshops/0008-analytics-platform.md) — 사용자 결정 대기
-- [Workshop-0009: 운영 Dashboard 플랫폼](workshops/0009-dashboard-platform.md) — 사용자 결정 대기
-- [Workshop-0010: AI 분석 통합 방식](workshops/0010-ai-analysis-integration.md) — 사용자 결정 대기
-- [Workshop-0011: 관측성](workshops/0011-observability-stack.md) — 사용자 결정 대기
-- [Workshop-0013: PC·모바일 플랫폼 범위](workshops/0013-client-platform-coverage.md) — 사용자 결정 대기
-- [Workshop-0012: 배포·호스팅과 CI/CD](workshops/0012-deployment-and-ci.md) — 선행 결정 대기
+- [Workshop-0001: 전체 배포 단위](workshops/0001-deployment-unit.md) — 완료
+- [Workshop-0002: Game Core 공유 방식](workshops/0002-game-core-distribution.md) — 완료
+- [Workshop-0003: Backend 플랫폼](workshops/0003-backend-platform.md) — 완료
+- [Workshop-0004: 영속 저장소](workshops/0004-persistence-platform.md) — 완료
+- [Workshop-0005: 비동기 Job 플랫폼](workshops/0005-async-job-platform.md) — 완료
+- [Workshop-0006: API 스타일](workshops/0006-api-style.md) — 완료
+- [Workshop-0007: 인증과 인간 Run 검증](workshops/0007-auth-and-run-verification.md) — 완료
+- [Workshop-0008: 분석·집계 방식](workshops/0008-analytics-platform.md) — 완료
+- [Workshop-0009: 운영 Dashboard 플랫폼](workshops/0009-dashboard-platform.md) — 완료
+- [Workshop-0010: AI 분석 통합 방식](workshops/0010-ai-analysis-integration.md) — 완료
+- [Workshop-0011: 관측성](workshops/0011-observability-stack.md) — 완료
+- [Workshop-0013: PC·모바일 플랫폼 범위](workshops/0013-client-platform-coverage.md) — 완료
+- [Workshop-0012: 배포·호스팅과 CI/CD](workshops/0012-deployment-and-ci.md) — 완료
 
 ## 완료 조건
 

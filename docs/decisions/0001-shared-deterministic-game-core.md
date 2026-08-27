@@ -1,6 +1,10 @@
 # ADR-0001: 결정론적 Game Core 공유
 
-상태: 제안
+상태: 승인
+
+결정일: 2026-08-27
+
+연결 워크숍: [Workshop-0002](../workshops/0002-game-core-distribution.md)
 
 ## 맥락
 
@@ -48,3 +52,9 @@ Unity의 사람 플레이, Headless 합성 플레이, 서버의 랭킹 검증이
 - Unity가 선택한 .NET 표준 타깃을 더 이상 지원하지 않음
 - 다른 언어 서버가 Game Core를 직접 실행해야 함
 - 결정론적 DLL 공유보다 별도 권위 서버 모델이 제품 요구에 적합해짐
+
+## 검증 의무
+
+- Unity, .NET Test Host, Windows, Android에서 같은 Golden Fixture의 Result Hash 불일치 0건
+- Game Core 산출물 checksum과 배포된 Game Version의 연결 검증
+- UnityEngine, 외부 IO, 현재 시각과 비시드 난수 의존성 차단

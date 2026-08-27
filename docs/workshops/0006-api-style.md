@@ -1,6 +1,6 @@
 # Workshop-0006: API 스타일
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0007](../decisions/0007-api-style.md)
 
@@ -53,6 +53,11 @@ A. Unity와 Dashboard가 함께 사용하는 첫 계약은 REST/JSON이 가장 �
 - payload 크기
 - 문서 가독성
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: A, REST/JSON + OpenAPI
+- 이유: Unity와 Browser에서 범용적으로 호출·디버깅하기 쉽고 현재 계약은 조회·명령·비동기 상태 확인이 중심이다.
+- 감수: gRPC의 binary·IDL 효율과 GraphQL의 field 조합 유연성은 포기한다.
+- 재검토: streaming, 대용량 payload 또는 과도한 REST query 조합이 측정될 때 해당 경계만 확장한다.
+
+최종 내용은 [ADR-0007](../decisions/0007-api-style.md)에 기록했다.

@@ -1,6 +1,6 @@
 # Workshop-0010: AI 분석 통합 방식
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0011](../decisions/0011-ai-analysis-integration.md)
 
@@ -50,6 +50,11 @@ A. 먼저 한 번의 구조화 호출과 제한된 도구로 근거 연결을 �
 - 같은 Snapshot의 핵심 결론 안정성 측정
 - Provider timeout 시 Experiment 상태 보존
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: A, Worker 내부 Provider-neutral Adapter
+- 이유: 제한된 Metric Snapshot 해석을 기존 비동기 Worker 경계에서 처리하고 권한·실패 범위를 통제한다.
+- 감수: 복잡한 Agent orchestration과 Python ML pipeline은 필요해질 때 별도 경계로 확장한다.
+- 비용 제약: 공개 무료 데모는 로컬 모델 또는 미리 생성한 보고서를 사용할 수 있다.
+
+최종 내용은 [ADR-0011](../decisions/0011-ai-analysis-integration.md)에 기록했다.

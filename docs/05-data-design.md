@@ -1,8 +1,8 @@
 # 데이터 설계
 
-상태: 검토 중
+상태: 확정
 
-논리 데이터 요구사항은 기준선으로 사용한다. PostgreSQL을 포함한 물리 저장·처리 방식은 [기술 의사결정 워크숍](09-decision-workshop.md)을 거쳐 확정한다.
+논리 데이터 요구사항과 PostgreSQL 기반 물리 저장·처리 기준을 함께 정의한다. 구현 세부사항은 승인된 [영속 저장소 ADR](decisions/0006-persistence-platform.md), [Job ADR](decisions/0003-postgresql-durable-jobs.md), [분석 ADR](decisions/0009-analytics-strategy.md)을 따른다.
 
 ## 1. 목표와 원칙
 
@@ -485,6 +485,8 @@ Redis, 별도 분석 DB, 메시지 브로커는 측정된 병목이 생기기 �
 | 대표 성공·실패·이상 Run | pin 후 영구 |
 
 초기에는 실제 삭제 전에 만료 대상 dry-run 보고서를 만든다.
+
+무료 공개 DB에서는 저장소 할당량의 70%를 경고 기준으로 삼는다. 기준에 도달하면 원시 합성 Event의 보존 만료를 우선 실행하되, Metric Snapshot의 입력 Run 집합 hash와 pin된 대표 Replay는 유지한다. Provider별 실제 용량은 배포 시점에 확인해 설정값으로 관리한다.
 
 ## 16. 개인정보와 보안
 

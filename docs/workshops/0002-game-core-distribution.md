@@ -1,6 +1,6 @@
 # Workshop-0002: Game Core 공유 방식
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0001](../decisions/0001-shared-deterministic-game-core.md)
 
@@ -53,6 +53,12 @@ A. MVP의 핵심 가치가 재현성이므로 동일 binary 계보와 checksum�
 - 1,000개 Seed에서 불일치 0
 - DLL 교체 시 Unity에서 버전 불일치 탐지
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: A, .NET Standard 관리 DLL
+- 핵심 이유: Unity, Simulation과 서버 검증기가 동일한 규칙 바이너리를 실행해 구현 drift를 줄인다.
+- 신뢰 근거: 동일 Game Version·Config·Seed·Action Log가 같은 Result Hash를 생성하는지 서버 재실행으로 확인한다.
+- 부가 가치: Unity 표현 계층이 바뀌어도 호환되는 C#/.NET host에서 Core를 재사용할 수 있다.
+- 감수: DLL 패키징·symbol·checksum과 Unity AOT/IL2CPP 호환성을 관리한다.
+
+최종 내용은 [ADR-0001](../decisions/0001-shared-deterministic-game-core.md)에 기록했다.

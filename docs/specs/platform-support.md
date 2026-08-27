@@ -4,7 +4,7 @@
 
 ## 범위
 
-SimOps Arena의 MVP는 하나의 Unity 프로젝트에서 `PC 플랫폼군`과 `모바일 플랫폼군`을 모두 지원한다. 이는 모든 운영체제를 동시에 지원한다는 뜻이 아니다. MVP의 정확한 OS, 배포 채널, 화면 방향과 출시 순서는 [Workshop-0013](../workshops/0013-client-platform-coverage.md)에서 결정한다.
+SimOps Arena의 MVP는 하나의 Unity 프로젝트에서 Windows와 Android를 지원한다. 화면은 가로 고정이며 Windows ZIP과 Android APK를 itch.io로 배포한다. 세부 근거는 [ADR-0014](../decisions/0014-client-platform-coverage.md)를 따른다.
 
 ## 공통 계약
 
@@ -39,7 +39,7 @@ Game Core는 UnityEngine 입력, 화면 크기, 프레임 시간, 플랫폼 전�
 
 - PLATFORM-020: 일시적인 연결 실패는 진행 중인 로컬 Run을 즉시 파기하지 않아야 한다.
 - PLATFORM-021: 랭킹 Run 시작에는 유효한 서버 Ticket이 필요하며, 만료·검증 실패 시 로컬 결과는 표시할 수 있어도 공개 랭킹에는 제출할 수 없다.
-- PLATFORM-022: 계정 연동을 구현하는 경우 같은 계정은 PC와 모바일에서 같은 시즌 기록을 조회해야 한다. 익명 계정의 기기 간 이전 방식은 Workshop-0013에서 별도로 결정한다.
+- PLATFORM-022: MVP 익명 계정은 Windows와 Android 사이에 이전하지 않는다. 계정 연동을 이후 구현하면 같은 계정은 두 플랫폼에서 같은 시즌 기록을 조회해야 한다.
 
 ## 완료 기준
 

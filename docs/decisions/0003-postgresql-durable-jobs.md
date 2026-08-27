@@ -1,6 +1,10 @@
 # ADR-0003: PostgreSQL 기반 내구성 Job
 
-상태: 제안
+상태: 승인
+
+결정일: 2026-08-27
+
+연결 워크숍: [Workshop-0005](../workshops/0005-async-job-platform.md)
 
 ## 맥락
 

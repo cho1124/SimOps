@@ -1,6 +1,6 @@
 # Workshop-0007: 인증과 인간 Run 검증
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0008](../decisions/0008-identity-and-run-verification.md)
 
@@ -48,6 +48,11 @@ A. 게임 접근성, 포트폴리오의 검증 설계, MVP 범위가 가장 잘 
 
 성공 기준은 모두 명시적 거부 코드와 상태 변경 0이다.
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: A, 익명 Credential + Signed Run Ticket + 전체 재실행
+- 이유: 정식 계정의 개인정보·복구 범위를 피하면서 결정론적 Core로 랭킹 신뢰성을 확보한다.
+- 감수: 기기 삭제·전환 시 계정 복구가 어렵고 고급 Seed 탐색은 완전히 막지 못한다.
+- 재검토: 다기기 동기화, 소셜·구매 이력 또는 강한 안티치트가 실제 요구가 될 때 확장한다.
+
+최종 내용은 [ADR-0008](../decisions/0008-identity-and-run-verification.md)과 [ADR-0004](../decisions/0004-verified-season-leaderboard.md)에 기록했다.

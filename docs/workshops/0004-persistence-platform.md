@@ -1,6 +1,6 @@
 # Workshop-0004: 영속 저장소
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0006](../decisions/0006-persistence-platform.md)
 
@@ -52,6 +52,11 @@ A. 현재 데이터 규모와 강한 트랜잭션 요구에 적합하다. 분석
 - Reward pick entropy 계산 입력 추출
 - 100만 Event에서 대표 집계 `EXPLAIN ANALYZE`
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: A, PostgreSQL 단일 저장소
+- 이유: 트랜잭션과 관계·unique·check 제약으로 Run, 시즌, 랭킹의 무결성과 중복 방지를 표현한다.
+- 감수: API·Worker·분석이 같은 DB 자원을 경쟁하고 대량 Event 분석에는 불리할 수 있다.
+- 재검토: Event 수, DB 크기, query p95와 운영 부하 Trigger를 측정한다.
+
+최종 내용은 [ADR-0006](../decisions/0006-persistence-platform.md)에 기록했다.

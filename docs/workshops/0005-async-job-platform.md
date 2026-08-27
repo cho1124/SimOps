@@ -1,6 +1,6 @@
 # Workshop-0005: 비동기 Job 플랫폼
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0003](../decisions/0003-postgresql-durable-jobs.md)
 
@@ -55,6 +55,11 @@ A. MVP에서는 Job 생성과 도메인 상태 전이를 한 DB 트랜잭션에 
 - 완료 결과 중복 0
 - 재시도 원인 추적 가능
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: A, PostgreSQL Job Table
+- 이유: 도메인 상태 변경과 Job 등록을 한 트랜잭션으로 처리하고 별도 Broker 운영을 피한다.
+- 감수: retry·heartbeat·dead job을 직접 구현하고 API와 DB 자원을 공유한다.
+- 재검토: claim 경합, backlog와 API latency 영향 또는 복잡한 routing 요구가 생길 때 Broker를 검토한다.
+
+최종 내용은 [ADR-0003](../decisions/0003-postgresql-durable-jobs.md)에 기록했다.

@@ -1,6 +1,6 @@
 # Workshop-0009: 운영 Dashboard 플랫폼
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0010](../decisions/0010-dashboard-platform.md)
 
@@ -56,6 +56,11 @@ B를 약간 우선한다. Dashboard는 SEO가 필요 없고 별도 API가 권위
 - 테스트 경험
 - 배포 결과 크기와 초기 로드
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: B, React + Vite SPA / TypeScript
+- 이유: 별도 ASP.NET Core API가 권위 Backend이고 운영 Dashboard는 SEO·SSR보다 단순한 client SPA 경계가 적합하다.
+- 감수: routing, 인증, data fetching과 cache 구성을 직접 선택한다.
+- 재검토: 공개 SEO·server rendering 또는 Dashboard 전용 server orchestration이 핵심 요구가 될 때 검토한다.
+
+최종 내용은 [ADR-0010](../decisions/0010-dashboard-platform.md)에 기록했다.

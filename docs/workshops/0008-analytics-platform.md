@@ -1,6 +1,6 @@
 # Workshop-0008: 분석·집계 방식
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0009](../decisions/0009-analytics-strategy.md)
 
@@ -56,6 +56,11 @@ A로 Metric 정의와 제품 흐름을 먼저 검증한다. Event 규모나 쿼�
 - 재현 가능한 Snapshot 생성 난도
 - 운영 데이터에 주는 영향
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: A, PostgreSQL SQL + Application 집계
+- 이유: 초기 규모에서는 별도 ETL 없이 Application이 Metric을 계산하고 같은 DB에 불변 Snapshot을 저장한다.
+- 감수: 분석과 운영 부하가 경쟁하고 임의 대량 분석에는 불리하다.
+- 재검토: Event 규모와 query profile이 Trigger를 넘으면 Parquet/DuckDB를 첫 확장으로 검토한다.
+
+최종 내용은 [ADR-0009](../decisions/0009-analytics-strategy.md)에 기록했다.

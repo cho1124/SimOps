@@ -1,6 +1,6 @@
 # Workshop-0003: Backend 플랫폼
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0005](../decisions/0005-backend-platform.md)
 
@@ -61,6 +61,11 @@ Run Ticket DTO
 - 오류 모델과 OpenAPI 품질
 - 개발자가 직접 설명 가능한 정도
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: A, ASP.NET Core / C#
+- 이유: Game Core를 직접 공유하고 서버 검증의 언어 경계를 줄인다.
+- 학습 초점: 새로운 Backend 언어 수보다 API, 트랜잭션, 비동기 Job과 운영 설계에 집중한다.
+- 감수: Python·TypeScript Backend 경험은 줄고, 필요할 때 AI·ML 경계를 별도로 분리한다.
+
+최종 내용은 [ADR-0005](../decisions/0005-backend-platform.md)에 기록했다.

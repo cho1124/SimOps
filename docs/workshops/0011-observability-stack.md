@@ -1,6 +1,6 @@
 # Workshop-0011: 관측성
 
-상태: 사용자 결정 대기
+상태: 완료
 
 연결 ADR: [ADR-0012](../decisions/0012-observability-stack.md)
 
@@ -57,6 +57,11 @@ HTTP request
 - 실패 Job과 retry 구분
 - Agent/Player credential이 telemetry에 없음
 
-## 프로젝트 소유자 답변
+## 프로젝트 소유자 결정
 
-[공통 선택 설명 형식](../09-decision-workshop.md#선택-설명-형식)을 사용한다.
+- 선택: B, OpenTelemetry 계측 + 교체 가능한 Backend
+- 이유: API, Worker, DB와 AI 호출을 하나의 trace로 연결하고 특정 시각화 Vendor와 계측을 분리한다.
+- 감수: OpenTelemetry 자체는 시각화 제품이 아니므로 Collector·Backend 선택과 cardinality 통제가 필요하다.
+- 초기 범위: console exporter와 최소 Collector로 시작하고 공개 Backend는 비용·배포 조건에 따라 늦게 선택한다.
+
+최종 내용은 [ADR-0012](../decisions/0012-observability-stack.md)에 기록했다.

@@ -1,8 +1,8 @@
 # 논리 인터페이스 설계
 
-상태: 검토 중
+상태: 확정
 
-이 문서는 REST, gRPC, GraphQL 또는 Backend 언어를 선택하기 전의 의미상 계약이다. Transport별 DTO와 Endpoint는 [Workshop-0006](workshops/0006-api-style.md) 승인 후 확정한다.
+이 문서는 Transport와 독립적인 의미상 계약 및 REST/JSON 외부 계약의 구현 기준이다. 구체적인 Endpoint·DTO는 [ADR-0007](decisions/0007-api-style.md)과 이 문서의 호환성 규칙을 따른다.
 
 ## 1. 원칙
 
@@ -389,12 +389,12 @@ AnalysisReport는 각 Claim에 `metricKeys[]`를 포함해야 한다.
 - Game Core 계약 변경은 Game Version과 Replay compatibility를 함께 검토한다.
 - 종료 Season의 Replay를 지원하지 못하면 이유와 필요한 legacy version을 표시한다.
 
-## 11. Transport 결정 후 남은 작업
+## 11. REST/OpenAPI 구현 시 남은 작업
 
 - Endpoint 또는 service method 이름
-- HTTP status, gRPC status 또는 GraphQL error mapping
+- HTTP status와 오류 code mapping
 - pagination/cursor 형식
-- generated client 전략
+- OpenAPI 기반 Unity·TypeScript client 생성 전략
 - payload 압축과 Action Log 크기 제한
-- OpenAPI/Proto/GraphQL schema
+- OpenAPI schema
 - 인증 header와 credential 전달 방식

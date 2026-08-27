@@ -44,6 +44,9 @@
 | PLATFORM-011 | 해상도·화면비·Safe Area 시각 검증 | 핵심 UI 겹침·잘림 0 |
 | PLATFORM-013 | Action 선택 중 background 전환 | 의도하지 않은 Action 0 |
 | PLATFORM-014 | Action 경계별 종료·복구 | 누락·중복 Action 0 |
+| DEPLOY-001 | 유휴 API·DB 첫 요청 | Cold Start 시간 기록 후 핵심 흐름 성공 |
+| DEPLOY-002 | 유휴 Worker wake 후 Job 실행 | Job 유실·중복 0, 상태 조회 가능 |
+| DEPLOY-003 | 무료 할당량 초과 방지 | 카드·과금 없이 중단 또는 사전 차단 |
 
 ## Golden Fixture
 
@@ -87,8 +90,8 @@ Game Version마다 최소 다음 Fixture를 유지한다.
 
 | 대상 | Build | 설치·실행 | 입력 | UI·Safe Area | Pause·Resume | Golden Hash | API·랭킹 |
 |---|---|---|---|---|---|---|---|
-| PC 대상 | 대기 | 대기 | 대기 | 대기 | 해당 시 검증 | 대기 | 대기 |
-| 모바일 대상 | 대기 | 대기 | 대기 | 대기 | 대기 | 대기 | 대기 |
+| Windows | 대기 | 대기 | 키보드·마우스 | 가로 기준 | focus 상실 검증 | 대기 | 통합 랭킹 |
+| Android 실기기 | 대기 | 대기 | 터치 | 가로·Safe Area | background·resume | 대기 | 통합 랭킹 |
 
 ## 성능 측정 규칙
 
@@ -97,6 +100,7 @@ Game Version마다 최소 다음 Fixture를 유지한다.
 - 평균뿐 아니라 p50, p95, 처리량을 기록한다.
 - 성능 변경 전후에 같은 Fixture와 Seed를 사용한다.
 - 목표 미달이 곧 특정 기술 교체를 의미하지 않으며 profile 결과를 먼저 확인한다.
+- 무료 공개 환경은 warm latency와 Cold Start 시간을 분리해 기록한다.
 
 ## 추적 규칙
 
